@@ -14,17 +14,18 @@ Do not consume any of the three competition attempts during ordinary development
 
 ## Deployed changes draft (under 1,024 characters)
 
-Initial Gather release: a planning workspace for weddings, birthdays, and community events. Includes editable budgets with exact totals and contingency, task timelines and owners, vendor checklists and quote tracking, and personalized ideas. Scenario previews preserve protected allocations and recorded payments, with undo. Plans save locally and export as JSON backups, budget CSVs, calendar deadlines, or a printable overview. Gemini runs server-side with validated structured output; provider errors preserve the existing plan. Responsive layouts, keyboard controls, input validation, shared AI request limits, and automated domain/browser checks support reliable use.
+Gather is a planning workspace for weddings, birthdays, and community events. It includes exact budgets and contingency, task timelines and owners, vendor checklists and quotes, and personalized ideas. Chat with Gather remembers recent thoughts and proposes preferences, budgets, guest counts, or tasks for review before applying. Scenario previews preserve protected allocations and payments, with undo. Plans and conversations save locally; exports include JSON backups, budget CSVs, calendar deadlines, and print. Gemini runs server-side with validated structured output; provider failures preserve existing data. Responsive layouts, keyboard controls, input validation, shared AI limits, and automated unit/browser checks support reliable use.
 
 ## GenAI usage draft (under 1,024 characters)
 
-Google Gemini Developer API, using a Google AI Studio free-tier key stored only on the server. After explicit user confirmation, the event brief is sent to Gemini to personalize preparation tasks, practical event ideas, assumptions, and a chronological event-day schedule. Responses use a constrained JSON schema and independent server validation. Application code handles exact budget arithmetic, dates, persistence, and scenario calculations. Vendor names, quotes, payments, and task owners are excluded from AI requests. Template mode is labeled and remains usable if the API is unavailable or quota is exhausted. The submitted release must identify the exact model verified in its deployed configuration.
+Google Gemini Developer API (gemini-3.1-flash-lite), using a Google AI Studio free-tier key stored only on the server. Personalization sends the event brief after confirmation to generate tasks, ideas, assumptions, and an event-day schedule. Chat sends recent messages and bounded event context when the user presses Send; it answers questions and proposes changes that require a separate preview and Apply click. Both paths use constrained JSON output and independent validation. Application code handles exact budget arithmetic, dates, persistence, and scenario protections. Generated context excludes vendor names, quotes, payments, and task owners. Messages typed by users are shared under the visible disclosure. Template planning remains usable during API errors or quota exhaustion.
 
 ## Demonstration script (approximately 2–3 minutes; adjust to organizer limits)
 
 1. Open the deployed app without special local setup. State the challenge and show wedding, birthday, and community entry points.
 2. Create a fictional wedding with a budget, location, guest count, and specific dietary/access preferences.
 3. Personalize with the live Gemini API. Briefly show the generated task list, tailored ideas, and schedule. Do not expose the key or cloud console.
+   Open Chat with Gather, share an idea, preview and apply its proposed changes, then ask a follow-up to demonstrate context. Keep API requests within the shared free-tier quota.
 4. Open Budget. Record a payment and protect the venue allocation. Preview a reduced budget, point out preserved commitments, apply, and undo.
 5. Complete a task, assign an owner, and update a vendor booking/quote.
 6. Export a budget or calendar; reload and reopen the saved event.

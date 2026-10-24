@@ -6,6 +6,7 @@ import {
   loadEvents,
   openDatabase,
   saveEvent,
+  MAX_BACKUP_BYTES,
 } from "../../storage/repository";
 import { createPlan } from "../../domain/planner";
 import { backupJson } from "../../exports/files";
@@ -51,9 +52,9 @@ describe("transactional browser persistence", () => {
     expect(imported.length).toBe(2);
     expect(new Set(imported.map((item) => item.id)).size).toBe(2);
     await expect(importEvents('{"version":2,"events":[]}')).rejects.toThrow();
-    await expect(importEvents("x".repeat(2000001))).rejects.toThrow(
-      "too large",
-    );
+    await expect(
+      importEvents("x".repeat(MAX_BACKUP_BYTES + 1)),
+    ).rejects.toThrow("too large");
     expect((await loadEvents()).length).toBe(2);
   });
   it("limits backup imports to thirty events", async () => {

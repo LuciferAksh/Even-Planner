@@ -2,7 +2,7 @@
 
 ## Trust boundaries
 
-Event descriptions, imported backups, browser requests, provider responses and vendor fields are untrusted data. React renders text; there is no raw-HTML or executable markdown rendering. Imported objects receive strict schema validation, bounded arrays/strings and unique identifiers. Dependency graphs are checked for cycles and invalid ordering with memoized traversal. Imports are capped at 2 MB and 30 events and create separate copies transactionally.
+Event descriptions, imported backups, browser requests, provider responses and vendor fields are untrusted data. React renders text; there is no raw-HTML or executable markdown rendering. Imported objects receive strict schema validation, bounded arrays/strings and unique identifiers. Dependency graphs are checked for cycles and invalid ordering with memoized traversal. Imports are capped at 32 MB and 30 events and create separate copies transactionally. The larger bounded backup limit accommodates saved conversations.
 
 Secrets are server-side runtime values. The Gemini credential is sent to Google's fixed HTTPS endpoint using the `x-goog-api-key` header, never in the URL. User input cannot choose the endpoint or model. The configurable server model is restricted to an allowlisted model-name pattern. The browser never accepts or stores API keys.
 
@@ -20,7 +20,11 @@ CSV exports quote text and neutralize formula prefixes. ICS strings escape reser
 
 ## Privacy
 
-Only the brief is sent to Gemini following explicit in-app confirmation. Contact details are unnecessary. Vendor names, payment records and task owners are not sent. Explain Google's free-tier data terms. There is no analytics or third-party advertising. Google Fonts is a presentation dependency; consider self-hosting fonts if eliminating third-party font requests becomes a requirement.
+Personalization sends the brief following explicit confirmation. Chat sends the brief, recent user/assistant messages, bounded task summaries, allocation targets, and vendor categories/statuses after the user presses Send under the data-sharing disclosure. Vendor names, quotes, payment records and task owners are excluded from generated event context. Users may type private details into chat, so the disclosure asks them to avoid doing so and explains Google's free-tier data terms. Messages remain browser-local and are included in JSON backups. There is no analytics or third-party advertising. Google Fonts is a presentation dependency; consider self-hosting fonts if eliminating third-party font requests becomes a requirement.
+
+## Conversational changes
+
+Chat accepts at most 60 KB per request and 12 recent messages, using a structured provider response limited to 2,200 tokens. It shares the existing durable AI quota; there is no separate unprotected chat proxy. The response cannot execute tools or call arbitrary URLs. Proposals are limited to preferences, a budget in the event's currency, a guest count, and five new tasks. Unknown fields or unsupported actions are rejected. Application code validates previews, preserves paid and protected amounts, deduplicates tasks, and refuses stale proposals. Nothing is applied without a user click. Failed replies preserve drafts and existing data; closing the dialog aborts waiting in the browser. Client cancellation does not guarantee cancellation of a provider request already received by the server.
 
 ## Review checklist
 

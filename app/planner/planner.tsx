@@ -3,6 +3,7 @@ import { HomeScreen } from "./home";
 import { Overview } from "./overview";
 import { Vendors } from "./vendors";
 import { Ideas } from "./ideas";
+import { Chat } from "./chat";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -20,6 +21,7 @@ import {
   Lightbulb,
   LoaderCircle,
   MapPin,
+  MessageCircle,
   Plus,
   RotateCcw,
   Search,
@@ -43,6 +45,7 @@ import {
   saveEvent,
   deleteEvent,
   importEvents,
+  MAX_BACKUP_BYTES,
 } from "../../storage/repository";
 import { calendarFile, download } from "../../exports/files";
 import { Dialog } from "./dialog";
@@ -66,7 +69,7 @@ export default function Planner() {
   const [tab, setTab] = useState<Tab>("Overview");
   const [ready, setReady] = useState(false);
   const [modal, setModal] = useState<
-    "create" | "scenario" | "ai" | "help" | "delete" | null
+    "create" | "scenario" | "ai" | "chat" | "help" | "delete" | null
   >(null);
   const [initialType, setInitialType] = useState<Brief["type"]>("wedding");
   const [message, setMessage] = useState("");
@@ -519,18 +522,35 @@ export default function Planner() {
                     <Download size={16} />
                     Print plan
                   </button>
-                  <button
-                    className="button primary"
-                    disabled={generating}
-                    onClick={() => setModal("ai")}
+                  <div
+                    className="ai-actions"
+                    role="group"
+                    aria-label="AI planning tools"
                   >
-                    {generating ? (
-                      <LoaderCircle className="spin" size={17} />
-                    ) : (
-                      <Sparkles size={17} />
-                    )}
-                    {generating ? "Personalizing…" : "Personalize with AI"}
-                  </button>
+                    <button
+                      className="button primary"
+                      disabled={generating}
+                      onClick={() => {
+                        setError("");
+                        setModal("chat");
+                      }}
+                    >
+                      <MessageCircle size={17} />
+                      Chat with Gather
+                    </button>
+                    <button
+                      className="button secondary"
+                      disabled={generating}
+                      onClick={() => setModal("ai")}
+                    >
+                      {generating ? (
+                        <LoaderCircle className="spin" size={17} />
+                      ) : (
+                        <Sparkles size={17} />
+                      )}
+                      {generating ? "Personalizing…" : "Personalize with AI"}
+                    </button>
+                  </div>
                 </div>
               </div>
               <nav className="event-tabs" aria-label="Event sections">
@@ -709,8 +729,8 @@ export default function Planner() {
           const file = e.target.files?.[0];
           if (!file) return;
           try {
-            if (file.size > 2_000_000)
-              throw new Error("Backup must be smaller than 2 MB.");
+            if (file.size > MAX_BACKUP_BYTES)
+              throw new Error("Backup must be smaller than 32 MB.");
             const imported = await importEvents(await file.text());
             setEvents(imported);
             notify("Backup imported as separate events.");
@@ -724,6 +744,22 @@ export default function Planner() {
           e.target.value = "";
         }}
       />
+      {modal === "chat" && active && (
+        <Dialog
+          title="Your ideas. A little guidance."
+          wide
+          onClose={() => setModal(null)}
+        >
+          <Chat
+            key={active.id}
+            event={active}
+            getCurrent={() => activeRef.current}
+            onUpdate={commit}
+            onPersonalize={() => setModal("ai")}
+            storageError={error}
+          />
+        </Dialog>
+      )}
       {modal === "create" && (
         <Dialog
           title="Let’s plan a lovely gathering."
@@ -834,11 +870,13 @@ export default function Planner() {
             </p>
             <h3>AI is optional</h3>
             <p>
-              Only clicking “Personalize my plan” sends your event brief to
-              Google Gemini. Vendor names, quotes, and payments are excluded.
-              Template plans are labeled clearly. Gemini suggestions and
-              allocations are estimates; verify vendors and local requirements
-              yourself.
+              Personalizing a plan or sending a chat message shares your event
+              brief with Google Gemini. Chat also shares recent messages and a
+              summary of tasks, allocations, and vendor categories. Vendor
+              names, quotes, payments, and task owners are excluded from event
+              context. Template plans are labeled clearly. Gemini suggestions
+              and allocations are estimates; verify vendors and local
+              requirements yourself.
             </p>
             <h3>Free-tier limits</h3>
             <p>

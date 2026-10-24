@@ -79,6 +79,61 @@ export const runItemSchema = z
     title: text(120),
   })
   .strict();
+export const chatProposalSchema = z
+  .object({
+    summary: text(300),
+    preferences: z.string().trim().max(2000).nullable(),
+    budgetMajor: z
+      .string()
+      .regex(/^\d{1,8}(\.\d{1,2})?$/)
+      .nullable(),
+    guests: z.number().int().min(1).max(10000).nullable(),
+    tasks: z
+      .array(
+        z
+          .object({
+            title: text(160),
+            category: text(60),
+            daysBefore: z.number().int().min(0).max(730),
+          })
+          .strict(),
+      )
+      .max(5),
+  })
+  .strict()
+  .refine(
+    (proposal) =>
+      proposal.preferences !== null ||
+      proposal.budgetMajor !== null ||
+      proposal.guests !== null ||
+      proposal.tasks.length > 0,
+    "A proposal must contain a change",
+  );
+export const chatReplySchema = z
+  .object({ reply: text(3000), proposal: chatProposalSchema.nullable() })
+  .strict();
+export const chatMessageSchema = z
+  .object({
+    id: text(80),
+    role: z.enum(["user", "assistant"]),
+    content: text(3000),
+    createdAt: z.string().datetime(),
+    proposal: chatProposalSchema.nullable().default(null),
+    baseRevision: z.number().int().min(0).nullable().default(null),
+    applied: z.boolean().default(false),
+  })
+  .strict()
+  .refine(
+    (message) =>
+      message.role === "assistant" ||
+      (message.proposal === null &&
+        message.baseRevision === null &&
+        !message.applied),
+    "Only assistant messages can propose changes",
+  );
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type ChatProposal = z.infer<typeof chatProposalSchema>;
+export type ChatReply = z.infer<typeof chatReplySchema>;
 export const eventSchema = z
   .object({
     id: text(80),
@@ -92,10 +147,11 @@ export const eventSchema = z
     assumptions: z.array(text(300)).max(12),
     source: z.enum(["template", "gemini"]),
     updatedAt: z.string().datetime(),
+    chat: z.array(chatMessageSchema).max(60).default([]),
   })
   .strict()
   .superRefine((event, ctx) => {
-    for (const key of ["budget", "tasks", "vendors"] as const) {
+    for (const key of ["budget", "tasks", "vendors", "chat"] as const) {
       const ids = event[key].map((item) => item.id);
       if (new Set(ids).size !== ids.length)
         ctx.addIssue({

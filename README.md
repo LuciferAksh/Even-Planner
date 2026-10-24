@@ -9,6 +9,13 @@ A GenAI-assisted planning workspace for weddings, birthdays, and community event
 - Task completion, prerequisites, owners, search, vendor names, quote tracking, and booking status.
 - Multiple browser-local events, transactional IndexedDB persistence, conflict detection, validated JSON backups, CSV budgets, all-day ICS deadlines, and printing.
 - Optional server-side Gemini personalization. Explicit consent explains what is sent. A missing key or exhausted quota leaves the template fully usable and clearly labeled.
+- An event-aware virtual planning companion beside personalization. Chat through ideas and questions, preview preference/budget/guest/task changes, then explicitly apply them. Conversation history stays with each event in this browser and its JSON backup.
+
+## Talk through your event
+
+Open an event and choose **Chat with Gather** beside **Personalize with AI**. Share your thoughts, ask a follow-up, or request a concrete change. Gather uses the current event summary and recent conversation. Advice does not alter your event. Proposed changes include a preview and an **Apply to my plan** button; budget changes go through the same exact-money and protected-cost checks as scenarios. After applying preferences, **Personalize with these thoughts** opens the existing full-plan personalization flow.
+
+Up to 30 exchanges are saved per event; the most recent 12 messages provide AI context. Starting another exchange expires older unaccepted proposals. Failed or canceled replies preserve the saved conversation, plan, and composer draft. Clearing chat requires confirmation and does not delete the event. Chat and personalization share the global four-requests-per-minute protection and Google's additional project quotas.
 
 ## Run locally
 
@@ -46,7 +53,7 @@ Browser tests expect a running server. They use Microsoft Edge by default on Win
 
 ```text
 app/planner/       Accessible UI, dialogs, budget/scenario forms
-app/api/generate/  Bounded JSON endpoint; no generic AI proxy
+app/api/           Bounded chat and personalization endpoints; no generic AI proxy
 domain/            Schemas and pure money/date/planning functions
 server/            Gemini adapter, request validation, durable quota
 storage/           IndexedDB repository and validated backup import
@@ -60,7 +67,7 @@ Vinext provides the React/Next-compatible UI and server routes on Cloudflare Wor
 
 ## Data and AI boundaries
 
-Only the brief (event type, date, budget, location, guest count, preferences, currency and timezone) goes to Google after the user confirms personalization. Vendor names, quotes, payments and task owners are excluded. Free-tier Gemini content may be used to improve Google's products; use fictional details in demonstrations.
+Personalization sends the brief (event type, date, budget, location, guest count, preferences, currency and timezone) to Google after confirmation. Sending a chat message shares that brief, recent messages, budget allocation targets, up to 25 task summaries, and vendor categories/statuses. Vendor names, quotes, payments and task owners are excluded from the event summary. Messages themselves may contain information typed by the user; the interface explains this before sending. Free-tier Gemini content may be used to improve Google's products; use fictional details in demonstrations. JSON backups can include conversation content and are bounded to 32 MB on import.
 
 Gemini suggests tasks, ideas, assumptions, and schedule entries using a constrained JSON schema. The server independently validates field lengths, counts, types, times and schedule ordering. Application code owns exact budgets and dates. Templates do not invent businesses or claim verified market prices. Scenario comparisons are deterministic and make no AI call.
 

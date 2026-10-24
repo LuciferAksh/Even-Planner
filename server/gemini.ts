@@ -1,13 +1,7 @@
 import { aiDraftSchema, type AiDraft, type Brief } from "../domain/schema";
-
-export class ProviderError extends Error {
-  constructor(
-    message: string,
-    public status = 502,
-  ) {
-    super(message);
-  }
-}
+import { requestStructured, ProviderError } from "./provider";
+import { majorUnits } from "../domain/chat";
+export { ProviderError } from "./provider";
 export const draftJsonSchema = {
   type: "object",
   required: ["tasks", "ideas", "assumptions", "runOfShow"],
@@ -67,82 +61,27 @@ export async function generateDraft(
   model: string,
   fetcher: typeof fetch = fetch,
 ): Promise<AiDraft> {
-  if (!/^gemini-[a-z0-9.-]{1,70}$/.test(model))
-    throw new ProviderError("The server model configuration is invalid.", 503);
-  let response: Response;
+  const raw = await requestStructured({
+    apiKey,
+    model,
+    fetcher,
+    instruction: systemInstruction,
+    schema: draftJsonSchema,
+    input: {
+      ...brief,
+      budget: undefined,
+      totalBudget: majorUnits(brief.budget),
+    },
+  });
   try {
-    response = await fetcher(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: JSON.stringify({
-                    ...brief,
-                    budget: undefined,
-                    totalBudget: `${Math.trunc(brief.budget / 100)}.${String(brief.budget % 100).padStart(2, "0")}`,
-                  }),
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 6000,
-            responseMimeType: "application/json",
-            responseJsonSchema: draftJsonSchema,
-          },
-        }),
-        signal: AbortSignal.timeout(35000),
-      },
-    );
-  } catch {
-    throw new ProviderError(
-      "Gemini could not be reached in time. Your plan is safe; try again or keep using the template.",
-      504,
-    );
-  }
-  if (response.status === 429)
-    throw new ProviderError(
-      "Gemini free-tier quota is busy or exhausted. Continue with your saved plan and try again later.",
-      429,
-    );
-  if (!response.ok)
-    throw new ProviderError(
-      `Gemini is unavailable (Google HTTP ${response.status}). Check the server key, model access, and project quota. Your saved plan is unchanged.`,
-      503,
-    );
-  try {
-    const raw = await response.text();
-    if (raw.length > 100000) throw new Error("Oversized response");
-    const payload = JSON.parse(raw) as {
-      candidates?: {
-        finishReason?: string;
-        content?: { parts?: { text?: string }[] };
-      }[];
-    };
-    const candidate = payload.candidates?.[0];
-    if (candidate?.finishReason !== "STOP")
-      throw new Error("Incomplete or blocked response");
-    const content =
-      candidate.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
-    const draft = aiDraftSchema.parse(JSON.parse(content));
+    const draft = aiDraftSchema.parse(raw);
     if (
       draft.runOfShow.some(
         (item, index) =>
           index > 0 && item.time < draft.runOfShow[index - 1].time,
       )
     )
-      throw new Error("Invalid schedule order");
+      throw new Error("Invalid schedule");
     return draft;
   } catch {
     throw new ProviderError(

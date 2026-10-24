@@ -1,6 +1,7 @@
 import { backupSchema, eventSchema, type EventPlan } from "../domain/schema";
 
 const DATABASE = "gather-planner";
+export const MAX_BACKUP_BYTES = 32 * 1024 * 1024;
 export async function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DATABASE, 1);
@@ -85,8 +86,8 @@ export async function deleteEvent(id: string): Promise<void> {
   await transaction("readwrite", (store) => store.delete(id));
 }
 export async function importEvents(raw: string): Promise<EventPlan[]> {
-  if (raw.length > 2_000_000)
-    throw new Error("Backup is too large (maximum 2 MB).");
+  if (raw.length > MAX_BACKUP_BYTES)
+    throw new Error("Backup is too large (maximum 32 MB).");
   const incoming = backupSchema.parse(JSON.parse(raw)).events;
   const current = await loadEvents();
   const merged = new Map(current.map((event) => [event.id, event]));
