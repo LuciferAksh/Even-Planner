@@ -10,11 +10,14 @@
     "dev": "node scripts/run-framework.mjs dev",
     "build": "node scripts/run-framework.mjs build",
     "start": "node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --inspector-port 0",
-    "lint": "eslint app domain server storage exports tests",
+    "lint": "eslint app domain server storage exports tests lib/ai-response.ts --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "format:check": "prettier --check app domain server storage exports tests lib/ai-response.ts eslint.config.mjs tsconfig.json vitest.config.ts playwright.config.ts .prettierrc.json",
+    "format": "prettier --write app domain server storage exports tests lib/ai-response.ts eslint.config.mjs tsconfig.json vitest.config.ts playwright.config.ts .prettierrc.json",
+    "verify": "npm run typecheck && npm run lint && npm run format:check && npm test"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -43,6 +46,7 @@
     "eslint-config-next": "16.4.3",
     "fake-indexeddb": "^6.2.4",
     "json-rpc-2.0": "1.7.1",
+    "prettier": "3.9.10",
     "raw-body": "3.0.2",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",

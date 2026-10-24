@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Heart, Cake, Users } from "lucide-react";
-import { briefSchema, type Brief } from "../../domain/schema";
-import { parseMoney } from "../../domain/money";
+import type { Brief } from "../../domain/schema";
+import { parseBriefForm, type BriefErrors } from "../../domain/brief-form";
 import { localToday, shiftDate } from "../../domain/dates";
 export function EventForm({
   onCreate,
@@ -14,24 +14,38 @@ export function EventForm({
   const [type, setType] = useState(initialType);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<BriefErrors>({});
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    formRef.current
+      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus();
+  }, [fieldErrors]);
+  function fieldProps(name: keyof Brief, label: string) {
+    return {
+      "aria-label": label,
+      "aria-invalid": fieldErrors[name] ? true : undefined,
+      "aria-describedby":
+        [
+          name === "timezone" ? "timezone-help" : "",
+          fieldErrors[name] ? `${name}-error` : "",
+        ]
+          .filter(Boolean)
+          .join(" ") || undefined,
+    };
+  }
   async function submit(form: FormData) {
     setError("");
+    setFieldErrors({});
     setBusy(true);
     try {
-      const brief = briefSchema.parse({
-        title: form.get("title"),
-        type,
-        date: form.get("date"),
-        location: form.get("location"),
-        guests: Number(form.get("guests")),
-        budget: parseMoney(String(form.get("budget"))),
-        currency: form.get("currency"),
-        preferences: form.get("preferences"),
-        timezone: form.get("timezone"),
-      });
-      if (brief.date < localToday(brief.timezone))
-        throw new Error("Choose today or a future date.");
-      await onCreate(brief);
+      const result = parseBriefForm(form, type);
+      if (!result.success) {
+        setFieldErrors(result.errors);
+        setError("Check the highlighted fields before creating your event.");
+        return;
+      }
+      await onCreate(result.brief);
     } catch (error) {
       setError(
         error instanceof Error && !("issues" in error)
@@ -43,7 +57,15 @@ export function EventForm({
     }
   }
   return (
-    <form action={submit} className="event-form">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void submit(new FormData(event.currentTarget));
+      }}
+      ref={formRef}
+      className="event-form"
+      aria-busy={busy}
+    >
       <fieldset className="type-picker">
         <legend>What are we celebrating?</legend>
         {(
@@ -76,7 +98,9 @@ export function EventForm({
           required
           maxLength={100}
           placeholder="e.g. Maya & Arjun’s wedding"
+          {...fieldProps("title", "Event name")}
         />
+        <FieldError name="title" errors={fieldErrors} />
       </label>
       <div className="form-grid">
         <label>
@@ -87,7 +111,9 @@ export function EventForm({
             required
             min={localToday()}
             defaultValue={shiftDate(localToday(), 90)}
+            {...fieldProps("date", "Event date")}
           />
+          <FieldError name="date" errors={fieldErrors} />
         </label>
         <label>
           Guest count
@@ -98,7 +124,9 @@ export function EventForm({
             max="10000"
             defaultValue="80"
             required
+            {...fieldProps("guests", "Guest count")}
           />
+          <FieldError name="guests" errors={fieldErrors} />
         </label>
       </div>
       <label>
@@ -108,7 +136,9 @@ export function EventForm({
           required
           maxLength={120}
           placeholder="e.g. Jaipur, Rajasthan"
+          {...fieldProps("location", "City or location")}
         />
+        <FieldError name="location" errors={fieldErrors} />
       </label>
       <div className="form-grid">
         <label>
@@ -119,16 +149,23 @@ export function EventForm({
             required
             defaultValue="200000"
             pattern="[0-9]+(\.[0-9]{1,2})?"
+            {...fieldProps("budget", "Total budget")}
           />
+          <FieldError name="budget" errors={fieldErrors} />
         </label>
         <label>
           Currency
-          <select name="currency" defaultValue="INR">
+          <select
+            name="currency"
+            defaultValue="INR"
+            {...fieldProps("currency", "Currency")}
+          >
             <option value="INR">INR · Indian rupee</option>
             <option value="USD">USD · US dollar</option>
             <option value="EUR">EUR · Euro</option>
             <option value="GBP">GBP · British pound</option>
           </select>
+          <FieldError name="currency" errors={fieldErrors} />
         </label>
       </div>
       <label>
@@ -138,11 +175,12 @@ export function EventForm({
           required
           defaultValue="Asia/Kolkata"
           maxLength={80}
-          aria-describedby="timezone-help"
+          {...fieldProps("timezone", "Timezone")}
         />
         <small id="timezone-help">
           For example, Asia/Kolkata or Europe/London.
         </small>
+        <FieldError name="timezone" errors={fieldErrors} />
       </label>
       <label>
         Make it yours <span className="muted">(optional)</span>
@@ -151,7 +189,9 @@ export function EventForm({
           maxLength={2000}
           rows={3}
           placeholder="A relaxed garden celebration, vegetarian food, step-free access…"
+          {...fieldProps("preferences", "Make it yours (optional)")}
         />
+        <FieldError name="preferences" errors={fieldErrors} />
       </label>
       <p className="small muted">
         Saved in this browser. Creating a template sends nothing to an AI
@@ -168,4 +208,17 @@ export function EventForm({
       </button>
     </form>
   );
+}
+function FieldError({
+  name,
+  errors,
+}: {
+  name: keyof Brief;
+  errors: BriefErrors;
+}) {
+  return errors[name] ? (
+    <small id={`${name}-error`} className="field-error">
+      {errors[name]}
+    </small>
+  ) : null;
 }

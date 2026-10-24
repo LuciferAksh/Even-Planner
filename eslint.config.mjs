@@ -14,6 +14,30 @@ const eslintConfig = defineConfig([
     "work/**",
   ]),
   {
+    files: [
+      "app/**/*.{ts,tsx}",
+      "domain/**/*.ts",
+      "server/**/*.ts",
+      "storage/**/*.ts",
+      "exports/**/*.ts",
+      "lib/ai-response.ts",
+    ],
+    rules: {
+      complexity: ["error", 15],
+      "max-lines": [
+        "error",
+        { max: 300, skipBlankLines: true, skipComments: true },
+      ],
+      "max-depth": ["error", 4],
+      "max-lines-per-function": [
+        "error",
+        { max: 240, skipBlankLines: true, skipComments: true },
+      ],
+      "@typescript-eslint/no-non-null-assertion": "error",
+      eqeqeq: ["error", "always"],
+    },
+  },
+  {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {
       // These files are vendored verbatim from shadcn@4.17.0. Keep the

@@ -1,0 +1,223 @@
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Small supporting text must retain AA contrast on paper and tinted surfaces. */
+:root {
+  --muted: #626b5a;
+}
+.workspace-label,
+.sidebar-empty,
+.little-note p,
+.profile small,
+.breadcrumb,
+.save-indicator,
+.eyebrow,
+.caption,
+.occasion-card small,
+.welcome-copy p,
+.welcome-copy > small,
+.site-footer,
+.site-footer > span:first-child,
+.site-footer button,
+.source-label,
+.event-meta,
+.stat-card > span,
+.stat-card small,
+.task-description > span,
+.task-date,
+.panel-foot,
+.assumptions ul,
+.event-footer,
+.budget-summary span,
+.money-input > span,
+.budget-table thead,
+.vendor-card ul,
+.event-tabs button {
+  color: #5e6853;
+}
+.idea-banner .eyebrow,
+.idea-banner p {
+  color: #6c6242;
+}
+.idea-number {
+  color: #6a775a;
+}
+.is-done .task-description strong {
+  color: #637057;
+}
+.badge.wedding {
+  color: #79543b;
+}
+.badge.birthday {
+  color: #79536e;
+}
+.welcome-copy h2 em {
+  color: #5e7050;
+}
+.stat-card em {
+  color: #687559;
+}
+.task-check input {
+  z-index: 1;
+}
+.task-check {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+}
+.task-check input {
+  width: 28px;
+  height: 28px;
+  inset: 0;
+}
+.text-button,
+.site-footer button {
+  min-height: 28px;
+}
+.field-error {
+  color: #943d33;
+  font-size: 12px;
+}
+[aria-invalid="true"] {
+  border-color: #943d33;
+}
+.type-picker label:has(input:focus-visible) {
+  outline: 3px solid #a25d32;
+  outline-offset: 3px;
+}
+@media (forced-colors: active) {
+  .check-box {
+    border-color: ButtonText;
+  }
+  .task-check input:checked + .check-box {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .task-check input:focus-visible + .check-box {
+    outline-color: Highlight;
+  }
+}
+.check-box {
+  pointer-events: none;
+}
+.idea-card .badge {
+  color: #52643f;
+}
+.pill.light {
+  color: #52643f;
+}
+@media print {
+  .sidebar,
+  .topbar,
+  .event-tabs,
+  .button,
+  .text-button,
+  .icon-button,
+  .event-footer,
+  .site-footer,
+  .undo-bar,
+  .filter-row {
+    display: none !important;
+  }
+  .main-shell {
+    margin: 0;
+  }
+  .main-shell main {
+    padding: 0;
+    max-width: none;
+  }
+  .panel,
+  .stat-card,
+  .idea-banner {
+    break-inside: avoid;
+  }
+  .event-heading h1 {
+    font-size: 24px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .overview-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  body {
+    font-size: 10pt;
+    background: #fff;
+  }
+  input,
+  select {
+    border: 0;
+    padding: 0;
+    background: none;
+  }
+  .task-date {
+    display: block;
+  }
+  .dialog {
+    display: none !important;
+  }
+  .assumptions {
+    margin-top: 15px;
+  }
+}
+.nav-item,
+.assumptions h3 {
+  color: #5e6853;
+}
+.run-of-show time {
+  color: #5e6853;
+}
+.print-report {
+  display: none;
+}
+@media print {
+  #main:has(.print-report) > :not(.print-report) {
+    display: none !important;
+  }
+  .print-report {
+    display: block;
+    color: #111;
+  }
+  .print-report h2 {
+    font-size: 16pt;
+    margin-top: 20pt;
+  }
+  .print-report h3 {
+    font-size: 12pt;
+    margin-top: 12pt;
+  }
+  .print-report p,
+  .print-report li {
+    color: #222;
+    font-size: 10pt;
+  }
+  .print-report table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .print-report td,
+  .print-report th {
+    padding: 6pt;
+    border-bottom: 1px solid #ccc;
+  }
+  .print-report section {
+    break-inside: avoid;
+  }
+  .print-report ul {
+    padding-left: 18pt;
+  }
+}
+.card-one small,
+.card-two {
+  color: #695b42;
+}

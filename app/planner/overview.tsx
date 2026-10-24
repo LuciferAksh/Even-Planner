@@ -59,11 +59,18 @@ export function Overview({
             TASKS COMPLETED
           </span>
           <strong>
-            {stats!.completed}
+            {stats.completed}
             <em> / {active.tasks.length}</em>
           </strong>
-          <div className="progress-track">
-            <span style={{ width: `${stats!.progress}%` }} />
+          <div
+            className="progress-track"
+            role="progressbar"
+            aria-label="Preparation tasks completed"
+            aria-valuenow={stats.progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <span style={{ width: `${stats.progress}%` }} />
           </div>
         </div>
         <div className="stat-card">
@@ -72,15 +79,15 @@ export function Overview({
             THE COUNTDOWN
           </span>
           <strong>
-            {stats!.days < 0
+            {stats.days < 0
               ? "Event passed"
-              : stats!.days === 0
+              : stats.days === 0
                 ? "Today’s the day"
-                : `${stats!.days} days`}
+                : `${stats.days} days`}
           </strong>
           <small>
-            {stats!.overdue
-              ? `${stats!.overdue} overdue tasks need a look`
+            {stats.overdue
+              ? `${stats.overdue} overdue tasks need a look`
               : "One step closer to a lovely gathering"}
           </small>
         </div>
@@ -114,7 +121,7 @@ export function Overview({
               <ShieldCheck size={14} />
               Your progress is saved on this device
             </span>
-            <span>{stats!.progress}% complete</span>
+            <span>{stats.progress}% complete</span>
           </div>
         </section>
         <section className="panel budget-preview">

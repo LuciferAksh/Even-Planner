@@ -1,0 +1,583 @@
+@media (min-width: 1600px) {
+  .main-shell main {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+  .welcome-copy {
+    padding: 40px;
+  }
+  .welcome-banner {
+    min-height: 330px;
+  }
+  .welcome-copy h2 {
+    font-size: 36px;
+  }
+  .banner-art {
+    transform: scale(1.1);
+    transform-origin: right center;
+  }
+}
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 195px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .main-shell {
+    margin-left: 195px;
+  }
+  .main-shell main {
+    padding: 28px 26px 0;
+  }
+  .topbar {
+    padding: 0 26px;
+  }
+  .overview-grid,
+  .bottom-grid {
+    grid-template-columns: 1.3fr 1fr;
+  }
+  .stat-card {
+    padding: 15px;
+  }
+  .stat-card strong {
+    font-size: 22px;
+  }
+  .task-row {
+    padding: 14px 17px;
+  }
+  .task-date {
+    font-size: 8px;
+  }
+  .page-heading h1 {
+    font-size: 30px;
+  }
+  .occasion-card {
+    padding: 19px;
+  }
+  .occasion-card small {
+    font-size: 8px;
+  }
+  .event-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .welcome-copy {
+    padding: 27px;
+  }
+  .card-one {
+    right: 30px;
+  }
+  .art-flower {
+    right: 30px;
+  }
+  .budget-summary strong {
+    font-size: 20px;
+  }
+  .budget-summary > div {
+    padding: 0 15px;
+  }
+}
+@media (max-width: 950px) {
+  .sidebar {
+    width: 76px;
+    padding: 27px 10px 0;
+  }
+  .brand {
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+    letter-spacing: 0;
+    margin-bottom: 35px;
+  }
+  .brand-symbol {
+    margin: 0;
+  }
+  .brand-dot,
+  .workspace-label,
+  .sidebar-events,
+  .sidebar-divider,
+  .little-note,
+  .profile {
+    display: none;
+  }
+  .nav-item {
+    font-size: 0;
+    justify-content: center;
+    gap: 0;
+    height: 42px;
+    padding: 0;
+  }
+  .nav-count {
+    display: none;
+  }
+  .sidebar-bottom {
+    margin-bottom: 15px;
+  }
+  .main-shell {
+    margin-left: 76px;
+  }
+  .overview-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .task-date {
+    display: none;
+  }
+  .caption {
+    display: none;
+  }
+  .occasion-grid {
+    gap: 10px;
+  }
+  .occasion-card {
+    padding: 17px;
+  }
+  .occasion-card h3 {
+    font-size: 15px;
+  }
+  .occasion-arrow {
+    right: 14px;
+    top: 22px;
+  }
+  .stats-grid {
+    gap: 9px;
+  }
+  .stat-card > span {
+    font-size: 7px;
+    letter-spacing: 0.6px;
+  }
+  .stat-card strong {
+    font-size: 20px;
+  }
+  .stat-card small {
+    font-size: 8px;
+  }
+  .welcome-copy h2 {
+    font-size: 26px;
+  }
+  .banner-art {
+    min-width: 200px;
+  }
+  .art-flower {
+    right: 5px;
+  }
+  .card-one {
+    right: 0;
+    font-size: 10px;
+    padding: 15px;
+  }
+  .card-two {
+    right: -15px;
+  }
+  .art-orbit {
+    right: -75px;
+  }
+  .orbit-two {
+    right: -115px;
+  }
+  .ideas-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .event-tabs {
+    gap: 23px;
+  }
+  .budget-table th,
+  .budget-table td {
+    padding: 17px;
+  }
+  .site-footer {
+    gap: 12px;
+  }
+}
+@media (max-width: 700px) {
+  .sidebar {
+    position: relative;
+    width: auto;
+    height: 61px;
+    inset: auto;
+    padding: 0 17px;
+    flex-direction: row;
+    align-items: center;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .app-shell {
+    display: block;
+  }
+  .brand {
+    font-size: 25px;
+    letter-spacing: -1.2px;
+    margin: 0;
+  }
+  .brand-symbol {
+    margin-right: 5px;
+  }
+  .brand-dot {
+    display: inline;
+  }
+  .sidebar nav {
+    display: flex;
+    margin-left: auto;
+    gap: 6px;
+  }
+  .sidebar nav .nav-item {
+    margin: 0;
+    width: 35px;
+    height: 35px;
+  }
+  .sidebar-bottom {
+    margin: 0 0 0 6px;
+  }
+  .sidebar-bottom .nav-item {
+    width: 35px;
+    height: 35px;
+    margin: 0;
+  }
+  .main-shell {
+    margin: 0;
+  }
+  .topbar {
+    height: 48px;
+    padding: 0 19px;
+  }
+  .topbar-right {
+    gap: 12px;
+  }
+  .topbar .avatar {
+    display: none;
+  }
+  .breadcrumb {
+    font-size: 10px;
+    gap: 8px;
+  }
+  .save-indicator {
+    font-size: 8px;
+  }
+  .main-shell main {
+    padding: 24px 19px 0;
+  }
+  .page-heading {
+    align-items: flex-start;
+    gap: 14px;
+    margin: 0 0 22px;
+  }
+  .page-heading h1 {
+    font-size: 26px;
+  }
+  .page-heading p {
+    font-size: 10px;
+    max-width: 220px;
+  }
+  .page-heading > .button {
+    padding: 8px 10px;
+    min-height: 36px;
+    font-size: 9px;
+  }
+  .page-heading > .button svg {
+    width: 13px;
+  }
+  .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .welcome-banner {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .welcome-copy {
+    padding: 25px;
+  }
+  .welcome-copy h2 {
+    font-size: 29px;
+  }
+  .welcome-copy p {
+    max-width: 75%;
+    font-size: 10px;
+  }
+  .welcome-copy .button {
+    font-size: 10px;
+  }
+  .welcome-copy > small {
+    font-size: 8px;
+  }
+  .banner-art {
+    position: absolute;
+    right: -45px;
+    bottom: 0;
+    min-width: 160px;
+    min-height: 200px;
+    width: 160px;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .art-flower {
+    width: 100px;
+    height: 100px;
+    top: 7px;
+    right: 10px;
+  }
+  .art-flower svg {
+    width: 80px;
+  }
+  .art-orbit {
+    width: 210px;
+    height: 210px;
+    right: -50px;
+  }
+  .orbit-two {
+    width: 270px;
+    height: 270px;
+    right: -80px;
+    top: -40px;
+  }
+  .art-card {
+    display: none;
+  }
+  .art-spark {
+    right: 55px;
+    top: 120px;
+    font-size: 30px;
+  }
+  .occasion-grid {
+    grid-template-columns: 1fr;
+  }
+  .occasion-card {
+    padding: 19px 20px 19px 83px;
+    min-height: 105px;
+  }
+  .occasion-icon {
+    position: absolute;
+    left: 19px;
+    top: 24px;
+    width: 43px;
+    height: 43px;
+    margin: 0;
+  }
+  .occasion-card small {
+    font-size: 9px;
+    margin-top: 6px;
+  }
+  .occasion-card p {
+    font-size: 10px;
+  }
+  .occasion-arrow {
+    top: 43px;
+    right: 18px;
+  }
+  .section {
+    margin-top: 25px;
+  }
+  .section-heading h2 {
+    font-size: 17px;
+  }
+  .section-heading p {
+    font-size: 10px;
+  }
+  .section-heading .inline-actions {
+    gap: 5px;
+  }
+  .text-button {
+    font-size: 10px;
+  }
+  .empty-events {
+    padding: 20px 15px;
+    gap: 13px;
+  }
+  .empty-events p {
+    font-size: 10px;
+  }
+  .empty-events strong {
+    font-size: 11px;
+  }
+  .event-grid {
+    grid-template-columns: 1fr;
+  }
+  .site-footer {
+    font-size: 8px;
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .site-footer > span:nth-child(2) {
+    max-width: 125px;
+    text-align: center;
+  }
+  .event-heading h1 {
+    font-size: 27px;
+  }
+  .event-meta {
+    gap: 11px;
+    font-size: 9px;
+  }
+  .event-tabs {
+    gap: 24px;
+    margin-bottom: 18px;
+  }
+  .event-tabs button {
+    font-size: 10px;
+    gap: 5px;
+    padding-bottom: 12px;
+  }
+  .event-tabs svg {
+    width: 14px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 17px;
+  }
+  .stat-card > span {
+    font-size: 8px;
+  }
+  .stat-card strong {
+    font-size: 24px;
+  }
+  .stat-card small {
+    font-size: 9px;
+  }
+  .overview-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+  .task-date {
+    display: flex;
+    font-size: 8px;
+  }
+  .task-description strong {
+    font-size: 11px;
+  }
+  .panel-heading {
+    padding: 20px 17px 16px;
+  }
+  .panel-heading h2 {
+    font-size: 17px;
+  }
+  .budget-stack {
+    margin: 0 17px 22px;
+  }
+  .budget-legend {
+    padding: 0 17px;
+  }
+  .budget-legend > div,
+  .budget-legend strong {
+    font-size: 11px;
+  }
+  .budget-preview > .button {
+    width: calc(100% - 34px);
+    margin-left: 17px;
+    margin-right: 17px;
+  }
+  .budget-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  .budget-summary > div {
+    padding: 0;
+    border: 0;
+  }
+  .budget-summary strong {
+    font-size: 22px;
+  }
+  .section-heading.spaced {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .budget-summary span {
+    font-size: 9px;
+  }
+  .table-scroll {
+    margin: 0 -4px;
+  }
+  .vendor-grid,
+  .ideas-grid {
+    grid-template-columns: 1fr;
+  }
+  .vendor-card {
+    padding: 20px;
+  }
+  .owner-input {
+    width: 80px;
+  }
+  .owner-input input {
+    font-size: 9px;
+  }
+  .filter-row {
+    gap: 9px;
+  }
+  .filter-buttons button {
+    padding: 6px 10px;
+  }
+  .search {
+    width: 150px;
+  }
+  .info-line {
+    align-items: flex-start;
+    font-size: 10px;
+  }
+  .info-line svg {
+    flex: none;
+  }
+  .dialog-heading {
+    padding: 23px 21px 19px;
+  }
+  .dialog-heading h2 {
+    font-size: 21px;
+  }
+  .event-form,
+  .dialog-copy {
+    padding: 21px;
+    gap: 16px;
+  }
+  .type-picker {
+    gap: 7px;
+  }
+  .type-picker label {
+    font-size: 10px;
+  }
+  .form-grid {
+    gap: 11px;
+  }
+  .dialog-actions {
+    flex-wrap: wrap;
+  }
+  .dialog-actions .button {
+    flex: 1;
+  }
+  .diff-list > div {
+    font-size: 9px;
+    padding: 10px 8px;
+    gap: 6px;
+  }
+  .diff-list span {
+    gap: 4px;
+  }
+  .event-footer > span {
+    max-width: 170px;
+    font-size: 8px;
+  }
+  .undo-bar {
+    font-size: 10px;
+    bottom: 10px;
+    padding: 12px;
+  }
+  .undo-bar > svg {
+    display: none;
+  }
+  .undo-bar button {
+    font-size: 10px;
+  }
+  .dialog {
+    max-height: 94dvh;
+  }
+  .preferences {
+    padding: 18px;
+  }
+  .assumptions {
+    margin-top: 24px;
+  }
+  .assumptions ul {
+    font-size: 9px;
+  }
+}

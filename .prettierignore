@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+outputs
+playwright-report
+test-results
+.next
+.vinext
+.wrangler
+.sites-runtime
+vendor
+components/ui
+package-lock.json

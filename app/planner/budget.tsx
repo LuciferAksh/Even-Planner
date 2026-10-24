@@ -22,9 +22,10 @@ export function Budget({
     value: string,
     input: HTMLInputElement,
   ) {
+    const line = event.budget.find((line) => line.id === id);
+    if (!line) return;
     try {
       const amount = parseMoney(value);
-      const line = event.budget.find((line) => line.id === id)!;
       if (line[field] !== amount)
         commit((current) => ({
           ...current,
@@ -34,9 +35,7 @@ export function Budget({
         }));
     } catch {
       onError("Enter an amount with up to two decimal places.");
-      input.value = String(
-        event.budget.find((line) => line.id === id)![field] / 100,
-      );
+      input.value = String(line[field] / 100);
     }
   }
   return (

@@ -161,21 +161,27 @@ export const eventSchema = z
     }
     const taskMap = new Map(event.tasks.map((task) => [task.id, task]));
     const checked = new Map<string, boolean>();
-    const visit = (id: string, path: Set<string>): boolean => {
-      if (checked.has(id)) return checked.get(id)!;
+    const visit = (
+      task: z.infer<typeof taskSchema>,
+      path: Set<string>,
+    ): boolean => {
+      const id = task.id;
+      const cached = checked.get(id);
+      if (cached !== undefined) return cached;
       if (path.has(id)) return false;
-      const task = taskMap.get(id);
-      if (!task) return false;
-      const valid = task.dependsOn.every(
-        (dep) =>
-          visit(dep, new Set([...path, id])) &&
-          taskMap.get(dep)!.due <= task.due &&
-          (!task.done || taskMap.get(dep)!.done),
-      );
+      const valid = task.dependsOn.every((id) => {
+        const dependency = taskMap.get(id);
+        return (
+          dependency !== undefined &&
+          visit(dependency, new Set([...path, task.id])) &&
+          dependency.due <= task.due &&
+          (!task.done || dependency.done)
+        );
+      });
       checked.set(id, valid);
       return valid;
     };
-    if (!event.tasks.every((task) => visit(task.id, new Set())))
+    if (!event.tasks.every((task) => visit(task, new Set())))
       ctx.addIssue({
         code: "custom",
         message: "Invalid task dependencies or dates",

@@ -18,7 +18,8 @@ export function Dialog({
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    const dialog = ref.current!;
+    const dialog = ref.current;
+    if (!dialog) return;
     dialog.showModal();
     return () => {
       if (dialog.open) dialog.close();
@@ -42,7 +43,7 @@ export function Dialog({
           onClick={onClose}
           aria-label="Close dialog"
         >
-          <X size={20} />
+          <X size={20} aria-hidden="true" />
         </button>
       </div>
       {children}

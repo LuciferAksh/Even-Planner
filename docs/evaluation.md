@@ -2,6 +2,20 @@
 
 Treat all six categories as high impact, per the user's prior competition experience. No hidden scoring formula or exact score is known.
 
+## Organizer feedback and maintenance iteration — 25 October 2026
+
+The user supplied an actual submitted result of **96.62/100**, broken down as code quality **88**, security **99**, efficiency **100**, testing **99**, accessibility **98**, and problem alignment **100**. This is the only organizer score evidenced here for the current work; local checks do not produce an organizer score or predict a rank.
+
+The iteration targets the demonstrated code-quality gap. The planner entry component fell from 907 lines to under 200 and chat from 509 lines to under 200, with persistence, requests, task rules, proposal review, dialogs, navigation and views separated by responsibility. Static event templates are separate from algorithms. Ordered stylesheet modules preserve the existing cascade. No runtime dependency was added.
+
+Strict TypeScript now rejects unused declarations, incomplete returns and fallthrough. Lint enforces application file/function size, complexity, nesting and non-null assertion rules. Formatting and scoped coverage thresholds are enforced in CI. The additional tests cover task dependencies and filtering, safe client response narrowing, exact form parsing, invalid-field focus and recovery, forced-color keyboard interaction, minimum task targets, legacy backup integrity, same-event navigation and conflicting edits across tabs.
+
+Verified locally: **67 unit/integration tests and 20 development browser tests pass**. Scoped coverage remains **100% lines/statements/functions**, with branches **98.11%** (previously 97.76%). Typecheck, zero-warning lint, formatting and the production build pass; production dependency audit reports zero known vulnerabilities. Built-Worker, public deployment and release-commit CI checks are separate release gates and must be verified after packaging. The form regression test found and fixed React action reset clearing previously entered values after validation failure.
+
+The same **20 browser tests also passed against the built production Worker** before packaging. Public deployment and GitHub CI are verified against the release commit separately; those statuses are available from Sites and the linked GitHub Actions run.
+
+Security boundaries, durable quotas, integer money rules, protected allocations, payment records, explicit AI review, exports and the three event types remain in place. Accessibility improvements add described field errors, invalid-field focus, larger task targets, a progressbar, visible radio focus, keyboard scrolling in chat and forced-color checkbox styling. Human screen-reader verification and the full fifteen-case live AI evaluation remain separate pending checks. No new competition attempt is submitted by publishing these changes.
+
 ## Requirement matrix
 
 | Requirement                           | Implementation                                                              | Evidence                                                      |
@@ -25,7 +39,7 @@ Live Gemini requests passed for weddings, birthdays, and community events using 
 
 Chat release verification: 56 unit/integration tests and all 15 development browser tests passed. Typecheck and lint passed without warnings. Scoped coverage is 100% statements/lines/functions and 97.76% branches; the production dependency audit reports zero known vulnerabilities. A real Gemini conversation successfully proposed preferences and checklist tasks, applied them after explicit approval, and answered a contextual follow-up. Chat and its preview passed automated accessibility scans at desktop and mobile sizes. This records local verification; deployment and CI must also pass for the release commit.
 
-Coverage is scoped to `domain`, `server`, `storage`, and `exports`. React UI and deployed API routing are assessed separately; do not describe the scoped number as whole-application coverage.
+Coverage is scoped to `domain`, `server`, `storage`, `exports`, and `lib/ai-response.ts`. React UI and deployed API routing are assessed separately; do not describe the scoped number as whole-application coverage.
 
 ## Six-category assessment
 
@@ -34,7 +48,7 @@ Coverage is scoped to `domain`, `server`, `storage`, and `exports`. React UI and
 | Code quality | Strict TypeScript, lint, shared provider and endpoint boundaries, separate domain/storage/UI modules | Automated checks cannot establish a hidden judge's score |
 | Security | Bounded input/output, strict schemas, server-only key, same-origin checks, durable quota, escaped text, protected/stale change validation | No independent penetration test; shared quota can be exhausted by other visitors |
 | Efficiency | Bounded chat history/context, token and request limits, one provider call per user action, deterministic local calculations | No sustained production load benchmark; free-tier latency and availability vary |
-| Testing | 56 unit/integration tests, 15 browser tests, live generation and chat smoke checks | Full fifteen-case live AI evaluation remains pending |
+| Testing | 67 unit/integration tests, 20 browser tests, live generation and chat smoke checks | Full fifteen-case live AI evaluation remains pending |
 | Accessibility | Semantic controls, keyboard dialog focus, responsive layouts, automated axe scans | Human screen-reader spot check remains pending; scans do not establish full WCAG conformance |
 | Problem alignment | Three event types, budgets, timelines, vendor checklists, personalized ideas and conversational plan refinement | Vendor data is user-entered; suggestions and costs require user verification |
 

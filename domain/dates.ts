@@ -14,6 +14,15 @@ export function shiftDate(date: string, days: number): string {
   result.setUTCDate(result.getUTCDate() + days);
   return result.toISOString().slice(0, 10);
 }
+/** Preparation deadlines cannot precede the day the plan is created. */
+export function preparationDate(
+  eventDate: string,
+  daysBefore: number,
+  today: string,
+): string {
+  const suggested = shiftDate(eventDate, -daysBefore);
+  return suggested < today ? today : suggested;
+}
 export function dayDistance(from: string, to: string): number {
   return Math.round(
     (Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) /

@@ -1,5 +1,5 @@
 import { allocate } from "./money";
-import { dayDistance, localToday, shiftDate } from "./dates";
+import { dayDistance, localToday, preparationDate, shiftDate } from "./dates";
 import {
   briefSchema,
   eventSchema,
@@ -8,169 +8,7 @@ import {
   type EventPlan,
 } from "./schema";
 
-const templates = {
-  wedding: {
-    categories: [
-      "Venue & rentals",
-      "Food & beverages",
-      "Decor & flowers",
-      "Photography",
-      "Music & moments",
-      "Contingency",
-    ],
-    weights: [28, 32, 12, 10, 8, 10],
-    tasks: [
-      ["Set priorities and confirm the guest list", 90, "Planning"],
-      ["Compare venues and check accessibility", 75, "Venue"],
-      ["Request catering quotes and dietary options", 60, "Food"],
-      ["Confirm photography and music", 45, "Vendors"],
-      ["Send invitations and request dietary needs", 40, "Guests"],
-      ["Plan ceremony and reception timings", 30, "Schedule"],
-      ["Confirm transport, seating and rain backup", 14, "Logistics"],
-      ["Review vendor balances and final guest count", 7, "Budget"],
-      ["Share the run of show with vendors", 2, "Schedule"],
-      ["Check venue setup and emergency contacts", 0, "Event day"],
-    ],
-    vendors: [
-      "Venue & rentals",
-      "Catering",
-      "Florist & decor",
-      "Photographer",
-      "Music & sound",
-    ],
-    ideas: [
-      [
-        "A welcome with a story",
-        "Create a small welcome table with photos and a handwritten note about your story. Add it to the setup checklist.",
-        "Low",
-      ],
-      [
-        "A seasonal menu",
-        "Ask your caterer for locally available seasonal dishes and clearly labeled dietary options. Compare the quote before booking.",
-        "Low",
-      ],
-      [
-        "Messages for the years ahead",
-        "Invite guests to write anniversary notes on paper cards. Assign someone to collect them before cleanup.",
-        "Low",
-      ],
-    ],
-    run: [
-      ["15:00", "Venue setup and vendor check-in"],
-      ["16:30", "Guest arrival and welcome"],
-      ["17:00", "Ceremony"],
-      ["18:30", "Dinner and toasts"],
-      ["21:00", "Farewell and cleanup"],
-    ],
-  },
-  birthday: {
-    categories: [
-      "Venue & rentals",
-      "Food & cake",
-      "Decorations",
-      "Activities",
-      "Invitations & favors",
-      "Contingency",
-    ],
-    weights: [20, 30, 12, 20, 8, 10],
-    tasks: [
-      ["Choose a theme and age-appropriate activities", 30, "Planning"],
-      ["Confirm guests, location and accessibility", 25, "Venue"],
-      ["Arrange cake and check food allergies", 20, "Food"],
-      ["Send invitations and collect RSVPs", 18, "Guests"],
-      ["Plan activities and supervision if needed", 14, "Activities"],
-      ["Arrange decorations and supplies", 10, "Decor"],
-      ["Confirm final numbers and food quantities", 5, "Food"],
-      ["Prepare music and activity materials", 2, "Activities"],
-      ["Set up the space and review safety", 0, "Event day"],
-    ],
-    vendors: [
-      "Venue & rentals",
-      "Cake & catering",
-      "Activities & entertainment",
-      "Decorations",
-    ],
-    ideas: [
-      [
-        "A memory-making station",
-        "Set out simple art supplies or a shared guestbook. Match the activity to the age group and assign a helper.",
-        "Low",
-      ],
-      [
-        "The favorite-things playlist",
-        "Invite guests to suggest a song before the celebration. Prepare a playlist and check the speaker setup.",
-        "Free",
-      ],
-      [
-        "A thoughtful cake moment",
-        "Plan a short toast and cake moment around the guest of honor. Confirm ingredients and dietary alternatives.",
-        "Low",
-      ],
-    ],
-    run: [
-      ["15:00", "Setup and food check"],
-      ["16:00", "Welcome guests"],
-      ["16:30", "Activities and games"],
-      ["17:30", "Cake and birthday wishes"],
-      ["18:00", "Food and conversation"],
-      ["19:00", "Farewell and cleanup"],
-    ],
-  },
-  community: {
-    categories: [
-      "Space & equipment",
-      "Refreshments",
-      "Activities & materials",
-      "Access & safety",
-      "Outreach",
-      "Contingency",
-    ],
-    weights: [25, 20, 20, 15, 10, 10],
-    tasks: [
-      ["Define the purpose, capacity and organizing team", 45, "Planning"],
-      ["Check venue access and applicable permissions", 35, "Venue"],
-      ["Recruit volunteers and assign responsibilities", 28, "People"],
-      ["Plan registration, crowd flow and safety", 21, "Safety"],
-      ["Share an invitation with accessibility details", 18, "Outreach"],
-      ["Arrange equipment and activity materials", 14, "Logistics"],
-      ["Confirm refreshments and dietary options", 10, "Food"],
-      ["Prepare weather backup and cleanup plan", 7, "Safety"],
-      ["Brief volunteers and confirm emergency contacts", 2, "People"],
-      ["Check access routes and registration desk", 0, "Event day"],
-    ],
-    vendors: [
-      "Space & equipment",
-      "Refreshments",
-      "Sound & lighting",
-      "Sanitation & cleanup",
-    ],
-    ideas: [
-      [
-        "A community skill exchange",
-        "Invite volunteers to lead short demonstrations. Publish a simple schedule and ensure activities are accessible.",
-        "Free",
-      ],
-      [
-        "A welcoming first five minutes",
-        "Assign greeters, add clear signs, and offer a quiet seating area. Include access information in invitations.",
-        "Low",
-      ],
-      [
-        "Bring and share responsibly",
-        "Consider a labeled refreshments table with ingredient information. Assign a volunteer to manage it and check venue rules.",
-        "Low",
-      ],
-    ],
-    run: [
-      ["09:00", "Volunteer briefing and access check"],
-      ["10:00", "Registration and welcome"],
-      ["10:30", "Community activities"],
-      ["12:00", "Refreshments and conversations"],
-      ["13:00", "Closing thanks"],
-      ["13:30", "Cleanup and equipment return"],
-    ],
-  },
-} as const;
+import { templates } from "./templates";
 
 export function createPlan(
   input: Brief,
@@ -255,7 +93,7 @@ export function applyAiDraft(
     id: `ai-${plan.revision + 1}-${i}`,
     title: task.title,
     category: task.category,
-    due: [today, shiftDate(plan.brief.date, -task.daysBefore)].sort().at(-1)!,
+    due: preparationDate(plan.brief.date, task.daysBefore, today),
     done: false,
     owner: "",
     dependsOn: [],

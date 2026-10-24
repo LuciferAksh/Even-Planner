@@ -10,7 +10,7 @@ import {
   type ChatReply,
   type EventPlan,
 } from "./schema";
-import { localToday, shiftDate } from "./dates";
+import { localToday, preparationDate } from "./dates";
 import { parseMoney } from "./money";
 import { scenario } from "./planner";
 
@@ -135,9 +135,7 @@ export function applyChatProposal(
       id: crypto.randomUUID(),
       title: task.title,
       category: task.category,
-      due: [today, shiftDate(event.brief.date, -task.daysBefore)]
-        .sort()
-        .at(-1)!,
+      due: preparationDate(event.brief.date, task.daysBefore, today),
       done: false,
       owner: "",
       dependsOn: [],

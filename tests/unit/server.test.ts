@@ -117,8 +117,8 @@ describe("Gemini adapter", () => {
     expect(String(init?.body)).toContain("untrusted event data");
     const body = JSON.parse(String(init?.body));
     const eventContext = JSON.parse(body.contents[0].parts[0].text);
-    expect(eventContext.totalBudget).toBe('600000.00');
-    expect(eventContext).not.toHaveProperty('budget');
+    expect(eventContext.totalBudget).toBe("600000.00");
+    expect(eventContext).not.toHaveProperty("budget");
   });
   it("rejects unsafe model paths", async () => {
     await expect(
