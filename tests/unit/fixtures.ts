@@ -21,7 +21,7 @@ export const draft: AiDraft = {
     description: "A thoughtful and practical idea",
     cost: "Low",
   })),
-  assumptions: ["Confirm venue availability"],
+  assumptions: ["Verify venue availability before committing."],
   runOfShow: [
     { time: "10:00", title: "Setup" },
     { time: "11:00", title: "Welcome" },

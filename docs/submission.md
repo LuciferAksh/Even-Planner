@@ -5,9 +5,9 @@ Do not consume any of the three competition attempts during ordinary development
 ## Required fields
 
 - Challenge: select the event planning assistant challenge on the platform.
-- Public GitHub repository URL: https://github.com/LuciferAksh/Even-Planner (selected by the user; source push pending verification).
-- Project deployed URL: pending a successful deployment and a judge-access check.
-- Project demo video URL: pending a recorded demonstration, review, and upload.
+- Public GitHub repository URL: https://github.com/LuciferAksh/Even-Planner (public source push verified).
+- Project deployed URL: https://gather-event-planner.plumamber129.chatgpt.site (private deployment verified; public judge access still requires an audience decision).
+- Project demo video URL: a 62-second silent local walkthrough has been recorded and spot-checked. Review and upload the video to obtain a submission URL. The recording is an ignored local artifact, not repository source.
 - Changes/updates: use the draft below only after verifying the implemented release.
 - GenAI services: use the draft below after a live Gemini test confirms the deployed integration.
 - LinkedIn post URL: draft below; publication requires the user's instruction. Never invent a post URL.

@@ -146,7 +146,15 @@ export const aiDraftSchema = z
       .min(5)
       .max(20),
     ideas: z.array(ideaSchema).min(3).max(6),
-    assumptions: z.array(text(300)).min(1).max(6),
+    assumptions: z
+      .array(
+        text(300).refine(
+          (value) => value.startsWith("Verify "),
+          "AI assumptions must be explicit verification checks",
+        ),
+      )
+      .min(1)
+      .max(6),
     runOfShow: z.array(runItemSchema).min(3).max(12),
   })
   .strict();

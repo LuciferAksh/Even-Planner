@@ -48,7 +48,6 @@ console.log(
       model,
       status: response.status,
       success: response.ok,
-      keyHasExpectedFormat: /^AIza[0-9A-Za-z_-]{35}$/.test(key),
       providerStatus: payload.error?.status,
       message: payload.error
         ? safe(payload.error.message)
