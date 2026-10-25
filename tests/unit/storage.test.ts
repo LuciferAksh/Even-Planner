@@ -18,7 +18,7 @@ beforeEach(async () => {
 describe("transactional browser persistence", () => {
   it("creates, reads, edits and deletes across reopened connections", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
+    await saveEvent(plan, null);
     const db = await openDatabase();
     expect(db.objectStoreNames.contains("events")).toBe(true);
     db.close();
@@ -28,26 +28,29 @@ describe("transactional browser persistence", () => {
       revision: 1,
       updatedAt: "2026-10-24T12:00:00.000Z",
     };
-    await saveEvent(edited);
+    await saveEvent(edited, plan.revision);
     expect((await loadEvents())[0].revision).toBe(1);
     await deleteEvent(plan.id);
     expect(await loadEvents()).toEqual([]);
   });
   it("rejects stale writes without losing newer data", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent({ ...plan, revision: 3 });
+    await saveEvent({ ...plan, revision: 3 }, null);
     await expect(
-      saveEvent({
-        ...plan,
-        revision: 1,
-        updatedAt: "2026-01-01T00:00:00.000Z",
-      }),
+      saveEvent(
+        {
+          ...plan,
+          revision: 1,
+          updatedAt: "2026-01-01T00:00:00.000Z",
+        },
+        0,
+      ),
     ).rejects.toThrow("another tab");
     expect((await loadEvents())[0].revision).toBe(3);
   });
   it("imports separate copies and rejects invalid backups atomically", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
+    await saveEvent(plan, null);
     const imported = await importEvents(backupJson([plan]));
     expect(imported.length).toBe(2);
     expect(new Set(imported.map((item) => item.id)).size).toBe(2);
@@ -59,7 +62,7 @@ describe("transactional browser persistence", () => {
   });
   it("limits backup imports to thirty events", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
+    await saveEvent(plan, null);
     await expect(
       importEvents(backupJson(Array.from({ length: 30 }, () => plan))),
     ).rejects.toThrow("30 events");
@@ -67,11 +70,11 @@ describe("transactional browser persistence", () => {
   });
   it("rejects conflicting edits even when timestamps match, and permits identical retries", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
-    await saveEvent(plan);
+    await saveEvent(plan, null);
+    await saveEvent(plan, null);
     const changed = structuredClone(plan);
     changed.budget[0].paid = 123;
-    await expect(saveEvent(changed)).rejects.toThrow("another tab");
+    await expect(saveEvent(changed, null)).rejects.toThrow("another tab");
     expect((await loadEvents())[0].budget[0].paid).toBe(0);
   });
   it("reports unavailable storage without pretending to save", async () => {
@@ -88,7 +91,7 @@ describe("transactional browser persistence", () => {
   });
   it("rolls back interrupted writes and imports while preserving saved events", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
+    await saveEvent(plan, null);
     const original = IDBObjectStore.prototype.put;
     const spy = vi
       .spyOn(IDBObjectStore.prototype, "put")
@@ -107,7 +110,7 @@ describe("transactional browser persistence", () => {
         return request;
       });
     try {
-      await expect(saveEvent({ ...plan, revision: 1 })).rejects.toThrow(
+      await expect(saveEvent({ ...plan, revision: 1 }, 0)).rejects.toThrow(
         "Storage failed",
       );
       await expect(importEvents(backupJson([plan]))).rejects.toThrow(
@@ -121,7 +124,7 @@ describe("transactional browser persistence", () => {
   });
   it("reports a failed delete transaction and retains the event", async () => {
     const plan = createPlan(brief, "2026-10-24");
-    await saveEvent(plan);
+    await saveEvent(plan, null);
     const original = IDBObjectStore.prototype.delete;
     const spy = vi
       .spyOn(IDBObjectStore.prototype, "delete")

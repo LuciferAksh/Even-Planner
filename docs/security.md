@@ -16,6 +16,8 @@ A shared quota reduces total API usage but is not a substitute for bot protectio
 
 Integer minor currency units prevent decimal drift. Allocations preserve exact totals with deterministic remainder handling. Scenarios preserve paid amounts and protected allocations and reject infeasible budgets. Optimistic UI writes are queued; storage revisions detect stale writes across tabs. Late AI responses cannot apply after an event revision changes. Completed tasks survive AI personalization. JSON backups provide recovery for browser-local storage.
 
+Each write supplies the exact expected base revision; IndexedDB compares it atomically before saving the next revision. A conflict or storage failure blocks the affected event's subsequent optimistic writes until reload, including writes already waiting in the queue. This prevents a second edit from bypassing the first conflict by advancing its local counter. The UI pauses editing and offers a backup of the unsaved working copy before reload. A stale edit cannot recreate a record deleted in another tab. Other event queues remain usable.
+
 CSV exports quote text and neutralize formula prefixes. ICS strings escape reserved characters and fold UTF-8 lines at 75 octets. Date-only deadlines use exclusive end dates.
 
 ## Privacy

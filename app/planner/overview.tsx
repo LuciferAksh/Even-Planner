@@ -21,11 +21,13 @@ export function Overview({
   taskRows,
   setTab,
   setModal,
+  readOnly = false,
 }: {
   active: EventPlan;
   taskRows: (limit?: number) => ReactNode;
   setTab: (tab: "Budget" | "Timeline" | "Ideas") => void;
   setModal: (modal: "scenario") => void;
+  readOnly?: boolean;
 }) {
   const stats = planStats(active);
   const colors = [
@@ -168,6 +170,7 @@ export function Overview({
           <button
             className="button secondary full"
             onClick={() => setModal("scenario")}
+            disabled={readOnly}
           >
             <WandSparkles size={16} />
             Explore a different budget

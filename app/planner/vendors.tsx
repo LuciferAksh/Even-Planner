@@ -6,6 +6,7 @@ export function Vendors({
   active,
   changeVendor,
   setError,
+  readOnly = false,
 }: {
   active: EventPlan;
   changeVendor: (
@@ -13,6 +14,7 @@ export function Vendors({
     patch: Partial<EventPlan["vendors"][number]>,
   ) => void;
   setError: (message: string) => void;
+  readOnly?: boolean;
 }) {
   return (
     <>
@@ -40,6 +42,7 @@ export function Vendors({
             <label>
               Vendor name
               <input
+                disabled={readOnly}
                 maxLength={100}
                 placeholder="Add a vendor you’ve found"
                 defaultValue={vendor.name}
@@ -55,6 +58,7 @@ export function Vendors({
               <label>
                 Booking status
                 <select
+                  disabled={readOnly}
                   value={vendor.status}
                   onChange={(e) =>
                     changeVendor(vendor.id, {
@@ -72,6 +76,7 @@ export function Vendors({
               <label>
                 Quote ({active.brief.currency})
                 <input
+                  disabled={readOnly}
                   inputMode="decimal"
                   defaultValue={(vendor.quote / 100).toString()}
                   onBlur={(e) => {

@@ -7,12 +7,14 @@ export function ChatComposer({
   busy,
   onSend,
   inputRef,
+  readOnly = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   busy: boolean;
   onSend: () => void;
   inputRef: RefObject<HTMLTextAreaElement | null>;
+  readOnly?: boolean;
 }) {
   return (
     <form
@@ -27,6 +29,7 @@ export function ChatComposer({
       </label>
       <textarea
         id="chat-message"
+        disabled={readOnly}
         ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -47,7 +50,7 @@ export function ChatComposer({
         </span>
         <button
           className="button primary"
-          disabled={busy || !value.trim()}
+          disabled={busy || readOnly || !value.trim()}
           aria-label="Send message"
         >
           {busy ? (

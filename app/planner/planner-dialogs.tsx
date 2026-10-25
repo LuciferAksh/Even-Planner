@@ -13,6 +13,7 @@ type Props = {
   active: EventPlan | null;
   initialType: Brief["type"];
   error: string;
+  readOnly: boolean;
   getCurrent: () => EventPlan | null;
   onUpdate: (plan: EventPlan, message?: string) => void;
   onClose: () => void;
@@ -27,6 +28,7 @@ export function PlannerDialogs({
   active,
   initialType,
   error,
+  readOnly,
   getCurrent,
   onUpdate,
   onClose,
@@ -51,6 +53,7 @@ export function PlannerDialogs({
             onUpdate={onUpdate}
             onPersonalize={() => onPersonalize()}
             storageError={error}
+            readOnly={readOnly}
           />
         </Dialog>
       )}
@@ -64,7 +67,7 @@ export function PlannerDialogs({
       )}
       {modal === "scenario" && active && (
         <Dialog title="What if we changed the plan?" onClose={() => onClose()}>
-          <Scenario event={active} onApply={onScenario} />
+          <Scenario event={active} onApply={onScenario} readOnly={readOnly} />
         </Dialog>
       )}
       {modal === "ai" && active && (
@@ -92,7 +95,11 @@ export function PlannerDialogs({
               <button className="button secondary" onClick={() => onClose()}>
                 Keep current plan
               </button>
-              <button className="button primary" onClick={onGenerate}>
+              <button
+                className="button primary"
+                onClick={onGenerate}
+                disabled={readOnly}
+              >
                 <Sparkles size={16} />
                 Personalize my plan
               </button>
@@ -111,7 +118,11 @@ export function PlannerDialogs({
               <button className="button secondary" onClick={() => onClose()}>
                 Keep event
               </button>
-              <button className="button destructive" onClick={onRemove}>
+              <button
+                className="button destructive"
+                onClick={onRemove}
+                disabled={readOnly}
+              >
                 Delete event
               </button>
             </div>

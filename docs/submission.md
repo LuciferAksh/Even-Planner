@@ -4,6 +4,8 @@ Do not consume any of the three competition attempts during ordinary development
 
 The user has since reported a submitted evaluation of 96.62/100: code quality 88, security 99, efficiency 100, testing 99, accessibility 98, and problem alignment 100. The maintenance iteration addresses concrete code structure and usability issues. No new score should be claimed until the organizer evaluates a new submission; ordinary deployment does not consume a competition attempt.
 
+Attempt 2 scored 97.06/100: code quality 89, security 99, efficiency 100, testing 100, accessibility 99, and alignment 100. No written feedback or evaluated commit SHA is exposed. Hold the third attempt while reviewing confirmed defects and release evidence; no code change establishes a predicted score of 99.
+
 ## Required fields
 
 - Challenge: select the event planning assistant challenge on the platform.

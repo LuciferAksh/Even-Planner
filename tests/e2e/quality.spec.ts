@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { createPlan } from "../../domain/planner";
 import { brief } from "../unit/fixtures";
@@ -153,9 +154,34 @@ test("cross-tab conflicts report the problem and preserve the first saved edit",
   await other.getByLabel("Paid Venue & rentals").fill("555");
   await other.getByLabel("Paid Venue & rentals").press("Tab");
   await expect(other.getByRole("alert")).toContainText("another tab");
-  await other.reload();
+  await other.setViewportSize({ width: 320, height: 800 });
+  expect(
+    await other.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await expect(other.getByLabel("Paid Venue & rentals")).toBeDisabled();
+  await expect(
+    other.getByRole("button", { name: "Delete event", exact: true }),
+  ).toBeDisabled();
+  const backup = other.waitForEvent("download");
+  await other.getByRole("button", { name: "Back up unsaved copy" }).click();
+  const downloaded = await backup;
+  expect(downloaded.suggestedFilename()).toBe("gather-unsaved-backup.json");
+  const path = await downloaded.path();
+  if (!path) throw new Error("The unsaved backup was not downloaded.");
+  const workingCopy = JSON.parse(await readFile(path, "utf8"));
+  expect(workingCopy.events[0].budget[0].paid).toBe(55500);
+  expect(
+    (
+      await new AxeBuilder({ page: other })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await other.getByRole("button", { name: "Reload saved events" }).click();
   await other
-    .getByRole("button", { name: "Maya & Arjun’s wedding", exact: true })
+    .getByRole("button", { name: /Maya & Arjun’s wedding/ })
     .first()
     .click();
   await other

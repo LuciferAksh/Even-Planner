@@ -15,6 +15,7 @@ Gather separates event rules, browser persistence, presentation, and the externa
 | `chat-message.tsx`, `chat-preview.tsx`, `chat-composer.tsx` | Render conversation, change review and user input separately |
 | `domain/` | Validate records and implement exact money, templates, dates, task dependencies, scenarios and chat proposals |
 | `storage/repository.ts` | Enforce IndexedDB transactions, stale-write detection and validated backup import |
+| `storage/write-queue.ts` | Preserve ordered writes and block an event's pending/future writes after a failed base revision until reload |
 | `server/` | Enforce request boundaries, durable quotas, provider timeouts and structured AI response validation |
 | `lib/ai-response.ts` | Narrow unknown response JSON before the client reads it |
 | `app/styles/` | Keep base, workspace, event, dialog, responsive, accessibility and chat styling in explicit cascade order |
@@ -47,5 +48,7 @@ Run browser tests against a running development or built Worker preview. After c
 ## Compatibility and release
 
 Backups retain format version 1. Records created before chat receive an empty conversation through schema defaults. Imports create new event IDs and preserve the original records. Stylesheet extraction preserves cascade order; the accessibility changes enlarge controls and add error/focus semantics.
+
+Persistence supplies an explicit expected base revision on each write. A higher local counter alone does not authorize overwriting a different saved version. Failure blocks that event's write queue and the editing controls while leaving an unsaved-copy backup and reload available. A new workspace after reload uses the current saved snapshot. Exact duplicate retries remain safe, and missing saved records cannot be silently resurrected by a stale edit.
 
 The public GitHub workflow uses the pinned compatible Ubuntu runner and locked dependency installation. A release must pass typecheck, lint, formatting, unit/integration tests, audit, build and browser tests before the competition entry is updated. Publishing a release does not submit another competition attempt or establish a new evaluation score.

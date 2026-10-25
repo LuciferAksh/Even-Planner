@@ -4,7 +4,29 @@ Treat all six categories as high impact, per the user's prior competition experi
 
 ## Organizer feedback and maintenance iteration — 25 October 2026
 
-The user supplied an actual submitted result of **96.62/100**, broken down as code quality **88**, security **99**, efficiency **100**, testing **99**, accessibility **98**, and problem alignment **100**. This is the only organizer score evidenced here for the current work; local checks do not produce an organizer score or predict a rank.
+The user supplied two actual organizer results. Local checks do not produce an organizer score or predict a rank.
+
+| Category | Attempt 1 | Attempt 2 |
+| --- | --- | --- |
+| Overall | 96.62 | 97.06 |
+| Code quality | 88 | 89 |
+| Security | 99 | 99 |
+| Efficiency | 100 | 100 |
+| Testing | 99 | 100 |
+| Accessibility | 98 | 99 |
+| Problem alignment | 100 | 100 |
+
+There is no written evaluator feedback or evaluated commit SHA available according to the user. The overall result is not a simple mean of the displayed category values. Two rounded scorecards cannot identify the weighting formula, source ingestion behavior, score variability, or the specific causes of the code-quality deduction. The observed improvement is evidence that the previous maintenance release was insufficient to reach the user's target, not proof that shorter files were the evaluator's principal concern.
+
+### Follow-up correctness audit
+
+An isolated test reproduced a concrete storage defect: the first stale write was rejected, but the optimistic revision then advanced and a second edit could overwrite another tab's saved payment. The prior cross-tab browser test stopped after the first rejection and reload, so it did not cover this continuation. This is a confirmed application defect; it is not evidence that the organizer detected that particular defect.
+
+The fix uses an explicit expected revision in the IndexedDB write transaction and rejects missing/deleted records, mismatched bases, and skipped revisions. Exact retries remain idempotent. A testable per-event write queue blocks queued and future edits after failure; the affected view pauses editing and offers an unsaved JSON backup plus a reload action. Other events remain independent. New tests exercise multiple queued edits after a conflict, generic storage failure, fresh-workspace recovery and deletion protection. AI contracts, quotas, event templates and budget arithmetic are unchanged.
+
+The correction passes **71 unit/integration tests**, strict typecheck, zero-warning lint and formatting checks. Scoped coverage is **100% lines/statements/functions and 98.21% branches**. The focused mobile browser regression verifies that the rejected working copy can be downloaded, the saved payment survives reload, editing is paused, navigation remains available, and the failure view passes automated accessibility checks. Full release browser/CI results must also pass for the published commit. These results do not constitute a new organizer evaluation.
+
+The next priorities are demonstrated correctness, consistent data contracts and necessary-only source cleanup, with regression evidence for every change. The broader lint audit of worker, database, libraries and scripts also passed; simply adding that scope to a command is not evidence that it will improve the score. Do not use the third competition attempt merely to test a formatting hypothesis.
 
 The iteration targets the demonstrated code-quality gap. The planner entry component fell from 907 lines to under 200 and chat from 509 lines to under 200, with persistence, requests, task rules, proposal review, dialogs, navigation and views separated by responsibility. Static event templates are separate from algorithms. Ordered stylesheet modules preserve the existing cascade. No runtime dependency was added.
 
@@ -35,7 +57,7 @@ Verified on 24 October 2026: strict TypeScript check and lint passed with no war
 
 All 11 browser tests passed in development preview, against the built production Worker, and against the public deployed site. They cover all three event types, create/save/reopen, budget protection, scenario preview/apply/undo, safe undo invalidation after later edits, task completion, vendor fields, backup round trips, CSV downloads, AI success/error/stale-result handling using mocks, API request validation, escaped titles, complete print output, keyboard dialog focus, and automated accessibility scans on desktop and mobile.
 
-Live Gemini requests passed for weddings, birthdays, and community events using gemini-3.1-flash-lite. Wedding: 8 tasks, 3 ideas, 5 schedule entries; birthday: 8 tasks, 3 ideas, 5 schedule entries; community: 7 tasks, 3 ideas, 6 schedule entries. Each response passed server-side schema and schedule validation. These three smoke cases do not constitute the complete fifteen-case AI evaluation. Hosted deployment and live Gemini generation were also verified. Currency wording was tightened after live output review: the model receives explicit major currency units, and assumptions must start with Verify. A fresh recorded live walkthrough passed with this contract. Public access and anonymous Gemini generation were verified after the user authorized public judging access. Still pending: a human screen-reader spot check, external demo video publication, and LinkedIn publication. No competition submission attempt has been made.
+Live Gemini requests passed for weddings, birthdays, and community events using gemini-3.1-flash-lite. Wedding: 8 tasks, 3 ideas, 5 schedule entries; birthday: 8 tasks, 3 ideas, 5 schedule entries; community: 7 tasks, 3 ideas, 6 schedule entries. Each response passed server-side schema and schedule validation. These three smoke cases do not constitute the complete fifteen-case AI evaluation. Hosted deployment and live Gemini generation were also verified. Currency wording was tightened after live output review: the model receives explicit major currency units, and assumptions must start with Verify. A fresh recorded live walkthrough passed with this contract. Public access and anonymous Gemini generation were verified after the user authorized public judging access. A human screen-reader spot check remains pending. The user has since submitted two evaluations; this agent has not submitted an additional attempt. Demo and LinkedIn publication status must be checked with the user before another competition submission.
 
 Chat release verification: 56 unit/integration tests and all 15 development browser tests passed. Typecheck and lint passed without warnings. Scoped coverage is 100% statements/lines/functions and 97.76% branches; the production dependency audit reports zero known vulnerabilities. A real Gemini conversation successfully proposed preferences and checklist tasks, applied them after explicit approval, and answered a contextual follow-up. Chat and its preview passed automated accessibility scans at desktop and mobile sizes. This records local verification; deployment and CI must also pass for the release commit.
 

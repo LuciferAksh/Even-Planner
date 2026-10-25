@@ -7,9 +7,11 @@ import { scenario } from "../../domain/planner";
 export function Scenario({
   event,
   onApply,
+  readOnly = false,
 }: {
   event: EventPlan;
   onApply: (next: EventPlan) => void;
+  readOnly?: boolean;
 }) {
   const [draft, setDraft] = useState<EventPlan | null>(null);
   const [error, setError] = useState("");
@@ -46,6 +48,7 @@ export function Scenario({
             New budget ({event.brief.currency})
             <input
               name="budget"
+              disabled={readOnly}
               inputMode="decimal"
               defaultValue={String(Math.round(event.brief.budget * 0.8) / 100)}
               required
@@ -57,6 +60,7 @@ export function Scenario({
             <input
               type="number"
               name="guests"
+              disabled={readOnly}
               min="1"
               max="10000"
               required
@@ -65,7 +69,7 @@ export function Scenario({
             />
           </label>
         </div>
-        <button className="button secondary full spaced">
+        <button className="button secondary full spaced" disabled={readOnly}>
           Preview changes
           <ArrowRight size={16} />
         </button>
@@ -109,6 +113,7 @@ export function Scenario({
           <button
             className="button primary full"
             onClick={() => onApply(draft)}
+            disabled={readOnly}
           >
             Apply this scenario
           </button>

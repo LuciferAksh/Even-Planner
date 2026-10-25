@@ -9,11 +9,13 @@ export function Budget({
   commit,
   onScenario,
   onError,
+  readOnly = false,
 }: {
   event: EventPlan;
   commit: (update: (current: EventPlan) => EventPlan) => void;
   onScenario: () => void;
   onError: (message: string) => void;
+  readOnly?: boolean;
 }) {
   const stats = planStats(event);
   function edit(
@@ -55,7 +57,11 @@ export function Budget({
             <Download size={16} />
             Export CSV
           </button>
-          <button className="button primary" onClick={onScenario}>
+          <button
+            className="button primary"
+            disabled={readOnly}
+            onClick={onScenario}
+          >
             <WandSparkles size={16} />
             Compare a scenario
           </button>
@@ -94,7 +100,12 @@ export function Budget({
           compare a larger budget.
         </p>
       )}
-      <div className="panel table-scroll">
+      <div
+        className="panel table-scroll"
+        role="region"
+        aria-label="Budget allocations"
+        tabIndex={0}
+      >
         <table className="budget-table">
           <caption className="sr-only">
             Editable budget in {event.brief.currency}. Values save when you
@@ -125,7 +136,7 @@ export function Budget({
                       inputMode="decimal"
                       defaultValue={String(line.amount / 100)}
                       key={`${line.id}-amount-${line.amount}`}
-                      disabled={line.locked}
+                      disabled={line.locked || readOnly}
                       onBlur={(e) =>
                         edit(line.id, "amount", e.target.value, e.target)
                       }
@@ -137,6 +148,7 @@ export function Budget({
                     <span>{event.brief.currency}</span>
                     <input
                       aria-label={`Paid ${line.name}`}
+                      disabled={readOnly}
                       inputMode="decimal"
                       defaultValue={String(line.paid / 100)}
                       onBlur={(e) =>
@@ -150,6 +162,7 @@ export function Budget({
                     className={`lock-button ${line.locked ? "locked" : ""}`}
                     aria-label={`${line.locked ? "Unlock" : "Protect"} ${line.name}`}
                     aria-pressed={line.locked}
+                    disabled={readOnly}
                     onClick={() =>
                       commit((current) => ({
                         ...current,

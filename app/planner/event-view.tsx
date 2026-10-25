@@ -19,6 +19,7 @@ type Props = {
     "update" | "commit" | "setError"
   >;
   generating: boolean;
+  readOnly: boolean;
   onModal: (modal: PlannerModal) => void;
   undo: EventPlan | null;
   onUndoCleared: () => void;
@@ -27,6 +28,7 @@ export function EventView({
   event,
   actions,
   generating,
+  readOnly,
   onModal,
   undo,
   onUndoCleared,
@@ -55,15 +57,16 @@ export function EventView({
         showOwners={tab === "Timeline"}
         onUpdate={actions.update}
         onError={setError}
+        readOnly={readOnly}
       />
     );
   }
   return (
     <>
-      {" "}
       <EventHeader
         active={event}
         generating={generating}
+        readOnly={readOnly}
         onChat={() => {
           setError("");
           onModal("chat");
@@ -83,6 +86,7 @@ export function EventView({
           taskRows={taskRows}
           setTab={setTab}
           setModal={onModal}
+          readOnly={readOnly}
         />
       )}
       {tab === "Budget" && (
@@ -91,6 +95,7 @@ export function EventView({
           commit={actions.update}
           onScenario={() => onModal("scenario")}
           onError={setError}
+          readOnly={readOnly}
         />
       )}
       {tab === "Timeline" && (
@@ -109,6 +114,7 @@ export function EventView({
         <Vendors
           active={event}
           changeVendor={changeVendor}
+          readOnly={readOnly}
           setError={setError}
         />
       )}
@@ -127,6 +133,7 @@ export function EventView({
         <span>Made for your moments. Saved in your browser.</span>
         <button
           className="text-button danger"
+          disabled={readOnly}
           onClick={() => onModal("delete")}
         >
           <Trash2 size={14} />
@@ -138,6 +145,7 @@ export function EventView({
           <CheckCheck size={17} />
           <span>Scenario applied. Your previous version is available.</span>
           <button
+            disabled={readOnly}
             onClick={() => {
               commit(undo, "Previous version restored.");
               onUndoCleared();

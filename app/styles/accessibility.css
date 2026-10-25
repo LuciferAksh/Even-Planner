@@ -85,6 +85,14 @@
   color: #943d33;
   font-size: 12px;
 }
+.save-conflict {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.save-conflict > span {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+}
 [aria-invalid="true"] {
   border-color: #943d33;
 }

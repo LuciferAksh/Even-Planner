@@ -44,7 +44,20 @@ export async function loadEvents(): Promise<EventPlan[]> {
     .parse({ version: 1, events: records })
     .events.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
-export async function saveEvent(plan: EventPlan): Promise<void> {
+export class SaveConflictError extends Error {
+  constructor() {
+    super(
+      "This event changed in another tab. Export your unsaved copy if needed, then reload before editing to avoid losing changes.",
+    );
+    this.name = "SaveConflictError";
+  }
+}
+
+/** Compare against the revision actually read by the caller, inside one transaction. */
+export async function saveEvent(
+  plan: EventPlan,
+  expectedRevision: number | null,
+): Promise<void> {
   const valid = eventSchema.parse(plan);
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
@@ -54,11 +67,13 @@ export async function saveEvent(plan: EventPlan): Promise<void> {
     let conflict = false;
     read.onsuccess = () => {
       const existing = read.result as EventPlan | undefined;
+      // An exact retry is safe even if the previous acknowledgement was lost.
+      if (existing && JSON.stringify(existing) === JSON.stringify(valid))
+        return;
+      const actualRevision = existing?.revision ?? null;
       if (
-        existing &&
-        (existing.revision > valid.revision ||
-          (existing.revision === valid.revision &&
-            JSON.stringify(existing) !== JSON.stringify(valid)))
+        actualRevision !== expectedRevision ||
+        (expectedRevision !== null && valid.revision !== expectedRevision + 1)
       ) {
         conflict = true;
         tx.abort();
@@ -73,11 +88,9 @@ export async function saveEvent(plan: EventPlan): Promise<void> {
     tx.onabort = tx.onerror = () => {
       db.close();
       reject(
-        new Error(
-          conflict
-            ? "This event changed in another tab. Reload before editing to avoid losing changes."
-            : "Storage failed. Export a backup before leaving.",
-        ),
+        conflict
+          ? new SaveConflictError()
+          : new Error("Storage failed. Export a backup before leaving."),
       );
     };
   });

@@ -11,12 +11,14 @@ export function TaskList({
   showOwners = false,
   onUpdate,
   onError,
+  readOnly = false,
 }: {
   tasks: Task[];
   timezone: string;
   showOwners?: boolean;
   onUpdate: (update: PlanUpdate) => void;
   onError: (message: string) => void;
+  readOnly?: boolean;
 }) {
   function complete(id: string) {
     try {
@@ -32,6 +34,7 @@ export function TaskList({
       <label className="task-check">
         <input
           type="checkbox"
+          disabled={readOnly}
           checked={task.done}
           aria-label={`Complete ${task.title}`}
           onChange={() => complete(task.id)}
@@ -58,6 +61,7 @@ export function TaskList({
           <span className="sr-only">Owner for {task.title}</span>
           <input
             maxLength={80}
+            disabled={readOnly}
             placeholder="Assign owner"
             defaultValue={task.owner}
             key={task.id}

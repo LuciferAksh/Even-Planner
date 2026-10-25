@@ -26,11 +26,13 @@ const tabs: { name: PlannerTab; Icon: typeof LayoutDashboard }[] = [
 export function EventHeader({
   active,
   generating,
+  readOnly,
   onChat,
   onPersonalize,
 }: {
   active: EventPlan;
   generating: boolean;
+  readOnly: boolean;
   onChat: () => void;
   onPersonalize: () => void;
 }) {
@@ -72,7 +74,7 @@ export function EventHeader({
         <div className="ai-actions" role="group" aria-label="AI planning tools">
           <button
             className="button primary"
-            disabled={generating}
+            disabled={generating || readOnly}
             onClick={() => {
               onChat();
             }}
@@ -82,7 +84,7 @@ export function EventHeader({
           </button>
           <button
             className="button secondary"
-            disabled={generating}
+            disabled={generating || readOnly}
             onClick={() => onPersonalize()}
           >
             {generating ? (

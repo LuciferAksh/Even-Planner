@@ -20,7 +20,12 @@ export function Chat({
   onUpdate,
   onPersonalize,
   storageError,
-}: ConversationOptions & { onPersonalize: () => void; storageError: string }) {
+  readOnly = false,
+}: ConversationOptions & {
+  onPersonalize: () => void;
+  storageError: string;
+  readOnly?: boolean;
+}) {
   const conversation = useConversation({ event, getCurrent, onUpdate });
   const { draft, setDraft, pending, error, busy, endRef, inputRef } =
     conversation;
@@ -55,7 +60,7 @@ export function Chat({
         {event.chat.length > 0 && (
           <button
             className="text-button"
-            disabled={busy}
+            disabled={busy || readOnly}
             onClick={() => setConfirmClear(true)}
           >
             <Trash2 size={13} />
@@ -81,6 +86,7 @@ export function Chat({
             </button>
             <button
               className="button destructive"
+              disabled={readOnly}
               onClick={() => {
                 const current = getCurrent();
                 if (current)
@@ -121,7 +127,7 @@ export function Chat({
               ].map((text) => (
                 <button
                   key={text}
-                  disabled={busy}
+                  disabled={busy || readOnly}
                   onClick={() => {
                     setDraft(text);
                     inputRef.current?.focus();
@@ -139,7 +145,7 @@ export function Chat({
             key={message.id}
             message={message}
             revision={event.revision}
-            busy={busy}
+            busy={busy || readOnly}
             onPreview={review.openPreview}
             onPersonalize={onPersonalize}
           />
@@ -165,7 +171,7 @@ export function Chat({
         <ChatPreview
           event={event}
           plan={activePreview.plan}
-          busy={busy}
+          busy={busy || readOnly}
           onClose={review.close}
           onApply={review.applyPreview}
         />
@@ -179,6 +185,7 @@ export function Chat({
         value={draft}
         onChange={setDraft}
         busy={busy}
+        readOnly={readOnly}
         onSend={() => {
           review.close();
           void conversation.send();

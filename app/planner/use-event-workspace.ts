@@ -10,6 +10,7 @@ import {
   MAX_BACKUP_BYTES,
   saveEvent,
 } from "../../storage/repository";
+import { EventWriteQueue } from "../../storage/write-queue";
 
 export type PlanUpdate = (plan: EventPlan) => EventPlan;
 
@@ -23,8 +24,9 @@ export function useEventWorkspace() {
   const [saving, setSaving] = useState(false);
   const active = events.find((event) => event.id === selected) ?? null;
   const activeRef = useRef<EventPlan | null>(null);
-  const writes = useRef(Promise.resolve());
+  const [writes] = useState(() => new EventWriteQueue());
   const pendingWrites = useRef(0);
+  const failure = active ? writes.failure(active.id) : undefined;
   useEffect(() => {
     activeRef.current = active;
   }, [active]);
@@ -62,6 +64,7 @@ export function useEventWorkspace() {
   function goHome() {
     activeRef.current = null;
     setSelected(null);
+    setError("");
   }
   async function create(brief: Brief) {
     if (events.length >= 30)
@@ -69,7 +72,7 @@ export function useEventWorkspace() {
         "You can keep up to 30 events. Export and remove one before continuing.",
       );
     const event = createPlan(brief);
-    await saveEvent(event);
+    await saveEvent(event, null);
     setEvents((current) => [event, ...current]);
     activeRef.current = event;
     setSelected(event.id);
@@ -98,6 +101,11 @@ export function useEventWorkspace() {
   function commit(next: EventPlan, text = "Changes saved") {
     const current = getCurrent();
     if (!current || current.id !== next.id) return;
+    const blocked = writes.failure(current.id);
+    if (blocked) {
+      setError(blocked.message);
+      return;
+    }
     const valid = eventSchema.parse({
       ...next,
       revision: current.revision + 1,
@@ -109,9 +117,8 @@ export function useEventWorkspace() {
     );
     pendingWrites.current++;
     setSaving(true);
-    // Recover the queue after failures so a later edit can still be saved.
-    writes.current = writes.current
-      .then(() => saveEvent(valid))
+    void writes
+      .enqueue(valid, current.revision)
       .then(() => notify(text))
       .catch((cause: unknown) => {
         setError(
@@ -132,7 +139,9 @@ export function useEventWorkspace() {
   async function remove() {
     const current = getCurrent();
     if (!current) return;
-    await writes.current;
+    await writes.flush();
+    const blocked = writes.failure(current.id);
+    if (blocked) throw blocked;
     await deleteEvent(current.id);
     setEvents((items) => items.filter((event) => event.id !== current.id));
     goHome();
@@ -141,7 +150,7 @@ export function useEventWorkspace() {
   async function importBackup(file: File) {
     if (file.size > MAX_BACKUP_BYTES)
       throw new Error("Backup must be smaller than 32 MB.");
-    await writes.current;
+    await writes.flush();
     const imported = await importEvents(await file.text());
     setEvents(imported);
     notify("Backup imported as separate events.");
@@ -151,7 +160,10 @@ export function useEventWorkspace() {
     active,
     ready,
     message,
-    error,
+    error: failure
+      ? `${failure.message} Editing is paused until reload.`
+      : error,
+    readOnly: Boolean(failure),
     saving,
     setError,
     notify,

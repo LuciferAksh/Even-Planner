@@ -9,11 +9,21 @@ import { Sidebar, Topbar } from "./workspace-navigation";
 import { PlannerDialogs, type PlannerModal } from "./planner-dialogs";
 import { useEventWorkspace } from "./use-event-workspace";
 import { usePersonalization } from "./use-personalization";
+import { backupJson, download } from "../../exports/files";
 
 export default function Planner() {
   const workspace = useEventWorkspace();
-  const { events, active, ready, saving, error, message, setError, commit } =
-    workspace;
+  const {
+    events,
+    active,
+    ready,
+    saving,
+    error,
+    message,
+    readOnly,
+    setError,
+    commit,
+  } = workspace;
   const ai = usePersonalization({
     getCurrent: workspace.getCurrent,
     onUpdate: commit,
@@ -91,15 +101,41 @@ export default function Planner() {
         <main id="main" tabIndex={-1}>
           {active && <PrintPlan event={active} />}
           {error && (
-            <div className="notice error" role="alert">
+            <div
+              className={`notice error ${readOnly ? "save-conflict" : ""}`}
+              role="alert"
+            >
               <span>{error}</span>
-              <button
-                className="icon-button"
-                aria-label="Dismiss error"
-                onClick={() => setError("")}
-              >
-                <X size={17} />
-              </button>
+              {readOnly ? (
+                <>
+                  <button
+                    className="button secondary"
+                    onClick={() =>
+                      download(
+                        backupJson(events),
+                        "gather-unsaved-backup.json",
+                        "application/json",
+                      )
+                    }
+                  >
+                    Back up unsaved copy
+                  </button>
+                  <button
+                    className="button secondary"
+                    onClick={() => window.location.reload()}
+                  >
+                    Reload saved events
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="icon-button"
+                  aria-label="Dismiss error"
+                  onClick={() => setError("")}
+                >
+                  <X size={17} />
+                </button>
+              )}
             </div>
           )}
           <div className="sr-only" role="status" aria-live="polite">
@@ -125,6 +161,7 @@ export default function Planner() {
                 event={active}
                 actions={workspace}
                 generating={ai.generating}
+                readOnly={readOnly}
                 onModal={setModal}
                 undo={undo}
                 onUndoCleared={() => setUndo(null)}
@@ -169,6 +206,7 @@ export default function Planner() {
         active={active}
         initialType={initialType}
         error={error}
+        readOnly={readOnly}
         getCurrent={workspace.getCurrent}
         onUpdate={commit}
         onClose={() => setModal(null)}
