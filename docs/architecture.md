@@ -37,6 +37,8 @@ flowchart LR
 
 Scenario comparisons make no AI request. Personalization requires confirmation; chat requires Send, and a proposal additionally requires Preview and Apply. Neither AI path writes directly to storage or changes paid amounts. The existing security controls and integer money arithmetic remain in place.
 
+Provider JSON Schemas are derived from the application Zod schemas. Shared generated-task fields and regex constraints therefore agree across chat and personalization. Chronological ordering and meaningful-proposal checks are additionally enforced by application validation because JSON Schema cannot express every semantic rule. Output generation does not replace runtime validation.
+
 ## Guardrails
 
 `npm run verify` runs strict TypeScript, zero-warning lint, formatting checks, and scoped coverage tests. Application TypeScript modules have a 300-line limit, functions a 240-line limit, cyclomatic complexity a limit of 15, and nesting a limit of four. Non-null assertions are rejected. These are maintenance limits rather than a proof of correctness.
@@ -48,6 +50,8 @@ Run browser tests against a running development or built Worker preview. After c
 ## Compatibility and release
 
 Backups retain format version 1. Records created before chat receive an empty conversation through schema defaults. Imports create new event IDs and preserve the original records. Stylesheet extraction preserves cascade order; the accessibility changes enlarge controls and add error/focus semantics.
+
+Creation and import count records inside their read/write transaction before inserting. This preserves the 30-event limit across concurrent tabs, rather than relying on a UI count that may be stale. Existing records remain editable at capacity; a failed create/import never inserts a partial batch. Import reads the saved snapshot after commit.
 
 Persistence supplies an explicit expected base revision on each write. A higher local counter alone does not authorize overwriting a different saved version. Failure blocks that event's write queue and the editing controls while leaving an unsaved-copy backup and reload available. A new workspace after reload uses the current saved snapshot. Exact duplicate retries remain safe, and missing saved records cannot be silently resurrected by a stale edit.
 

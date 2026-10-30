@@ -50,6 +50,8 @@ npm audit --omit=dev
 
 `npm run verify` runs typecheck, zero-warning lint, formatting checks and scoped coverage tests together. TypeScript also rejects unused declarations, incomplete returns and switch fallthrough. Lint enforces limits on application module/function size, complexity and nesting and rejects non-null assertions. The quality release separates workspace persistence, AI requests, task rules, chat review and presentation without adding runtime dependencies. See [architecture and maintenance](docs/architecture.md) and [contributing](CONTRIBUTING.md).
 
+Gemini JSON output contracts are generated from the application validation schemas, with semantic checks retained at runtime. The event capacity limit is checked atomically during creation and import, including across tabs. Existing events remain editable when capacity is reached.
+
 Browser tests expect a running server. They use Microsoft Edge by default on Windows. Set `PLAYWRIGHT_CHANNEL=chromium` and install the standard Playwright Chromium browser on Linux/CI. `TEST_BASE_URL` overrides the preview URL. Coverage reports describe domain, provider, request, quota, storage, and export modules; they do not claim full React interaction coverage. Browser tests cover interactions separately. Tests use mock provider responses and fictional events, never real secrets or live free-tier quota.
 
 ## Architecture

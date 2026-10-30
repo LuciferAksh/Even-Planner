@@ -2,6 +2,18 @@
 
 Treat all six categories as high impact, per the user's prior competition experience. No hidden scoring formula or exact score is known.
 
+## Final candidate review — 30 October 2026
+
+The last supplied organizer result is 97.06/100; the user reports the current leader at 97.50. Neither a local check nor a deployment establishes a new organizer score. The final competition attempt is reserved for the user.
+
+The final review makes two focused changes. Gemini's structured output contracts are generated from the application Zod schemas rather than maintained by hand. Task field limits, assumption prefixes, strict objects and valid times have one definition; chronological schedule validation now applies to every consumer. Semantic checks that JSON Schema cannot represent remain in application validation. Zod's native conversion and Google's structured-output support were checked against their official documentation: https://zod.dev/json-schema and https://ai.google.dev/gemini-api/docs/structured-output.
+
+The 30-event limit is checked inside the IndexedDB write transaction for both creation and import. Previously, simultaneous tabs could both pass a pre-write count and leave too many records for the bounded loader. Unit tests cover create/create, import/import, and create/import races; a browser test covers the last available slot, preservation of the rejected form, and reopening all saved events. Import returns a fresh saved snapshot after commit. Existing backup format, payment protection and conflict handling remain intact.
+
+Verified before packaging: 78 unit/integration tests pass with 100% scoped lines/statements/functions and 98.26% branches. Typecheck, zero-warning lint and formatting pass; production dependency audit reports zero known vulnerabilities. The last deployed baseline passed all 20 browser tests and a real two-turn Gemini chat. The new generated contracts passed real wedding, birthday and community personalization requests; each response passed independent validation. Wedding personalization also preserved a completed task in the browser. Final browser, build, public deployment and CI checks are recorded against the release commit separately.
+
+The October 25 Gemini timeout was rechecked: a direct minimal call and the deployed conversation both succeeded on October 30. Provider availability and free-tier quotas remain external limits; no automated retry loop or extra runtime dependency was added. There is no promise of a particular rank or score.
+
 ## Organizer feedback and maintenance iteration — 25 October 2026
 
 The user supplied two actual organizer results. Local checks do not produce an organizer score or predict a rank.

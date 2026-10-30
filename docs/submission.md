@@ -18,7 +18,7 @@ Attempt 2 scored 97.06/100: code quality 89, security 99, efficiency 100, testin
 
 ## Deployed changes draft (under 1,024 characters)
 
-Gather is a planning workspace for weddings, birthdays, and community events. It includes exact budgets and contingency, task timelines and owners, vendor checklists and quotes, and personalized ideas. Chat with Gather remembers recent thoughts and proposes preferences, budgets, guest counts, or tasks for review before applying. Scenario previews preserve protected allocations and payments, with undo. Plans and conversations save locally; exports include JSON backups, budget CSVs, calendar deadlines, and print. Gemini runs server-side with validated structured output; provider failures preserve existing data. Responsive layouts, keyboard controls, input validation, shared AI limits, and automated unit/browser checks support reliable use.
+Final reliability and maintainability update: Gemini output contracts now derive from application validation schemas, sharing task limits, verification assumptions, strict objects, and chronological schedule validation. Event creation and imports enforce capacity atomically across tabs. Exact-money budgets, protected payments, scenario preview/undo, local persistence, vendor checklists, exports, personalization, and reviewed chat proposals are preserved. Verification includes 78 unit/integration tests, 21 browser tests, strict TypeScript, zero-warning lint, formatting, production build, and dependency audit. Live Gemini checks cover weddings, birthdays, community events, and multi-turn chat. Desktop/mobile accessibility, keyboard focus, legacy backups, and conflict recovery are checked.
 
 ## GenAI usage draft (under 1,024 characters)
 

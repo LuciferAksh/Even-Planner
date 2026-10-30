@@ -7,15 +7,81 @@ import {
   openDatabase,
   saveEvent,
   MAX_BACKUP_BYTES,
+  EventCapacityError,
 } from "../../storage/repository";
 import { createPlan } from "../../domain/planner";
 import { backupJson } from "../../exports/files";
 import { brief } from "./fixtures";
+import { MAX_EVENTS } from "../../domain/schema";
 beforeEach(async () => {
   const events = await loadEvents();
   for (const event of events) await deleteEvent(event.id);
 });
 describe("transactional browser persistence", () => {
+  async function fillToLastSlot() {
+    for (let index = 0; index < MAX_EVENTS - 1; index++)
+      await saveEvent(createPlan(brief, "2026-10-24"), null);
+  }
+  it("atomically limits concurrent creates and permits editing at capacity", async () => {
+    await fillToLastSlot();
+    const first = createPlan(brief, "2026-10-24");
+    const second = createPlan(brief, "2026-10-24");
+    const results = await Promise.allSettled([
+      saveEvent(first, null),
+      saveEvent(second, null),
+    ]);
+    expect(results.map((result) => result.status).sort()).toEqual([
+      "fulfilled",
+      "rejected",
+    ]);
+    const rejected = results.find((result) => result.status === "rejected");
+    expect(rejected?.reason).toBeInstanceOf(EventCapacityError);
+    const records = await loadEvents();
+    expect(records.length).toBe(MAX_EVENTS);
+    const event = records[0];
+    await saveEvent(
+      {
+        ...event,
+        revision: event.revision + 1,
+        brief: { ...event.brief, title: "Still editable" },
+      },
+      event.revision,
+    );
+    expect(
+      (await loadEvents()).find((record) => record.id === event.id)?.brief
+        .title,
+    ).toBe("Still editable");
+  });
+  it("checks import capacity inside the transaction even when two tabs import together", async () => {
+    await fillToLastSlot();
+    const raw = backupJson([createPlan(brief, "2026-10-24")]);
+    const results = await Promise.allSettled([
+      importEvents(raw),
+      importEvents(raw),
+    ]);
+    expect(results.map((result) => result.status).sort()).toEqual([
+      "fulfilled",
+      "rejected",
+    ]);
+    expect(
+      results.find((result) => result.status === "rejected")?.reason,
+    ).toBeInstanceOf(EventCapacityError);
+    expect((await loadEvents()).length).toBe(MAX_EVENTS);
+    expect((await importEvents(backupJson([]))).length).toBe(MAX_EVENTS);
+  });
+  it("makes simultaneous creates and imports share the same capacity boundary", async () => {
+    await fillToLastSlot();
+    const first = createPlan(brief, "2026-10-24");
+    const second = createPlan(brief, "2026-10-24");
+    const results = await Promise.allSettled([
+      saveEvent(first, null),
+      importEvents(backupJson([second])),
+    ]);
+    expect(
+      results.filter((result) => result.status === "fulfilled").length,
+    ).toBe(1);
+    expect((await loadEvents()).length).toBe(MAX_EVENTS);
+  });
   it("creates, reads, edits and deletes across reopened connections", async () => {
     const plan = createPlan(brief, "2026-10-24");
     await saveEvent(plan, null);

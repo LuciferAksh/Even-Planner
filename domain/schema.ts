@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const eventTypes = ["wedding", "birthday", "community"] as const;
 export const currencies = ["INR", "USD", "EUR", "GBP"] as const;
+export const MAX_EVENTS = 30;
 export const isoDate = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -79,6 +80,13 @@ export const runItemSchema = z
     title: text(120),
   })
   .strict();
+export const suggestedTaskSchema = z
+  .object({
+    title: text(160),
+    category: text(60),
+    daysBefore: z.number().int().min(0).max(730),
+  })
+  .strict();
 export const chatProposalSchema = z
   .object({
     summary: text(300),
@@ -88,17 +96,7 @@ export const chatProposalSchema = z
       .regex(/^\d{1,8}(\.\d{1,2})?$/)
       .nullable(),
     guests: z.number().int().min(1).max(10000).nullable(),
-    tasks: z
-      .array(
-        z
-          .object({
-            title: text(160),
-            category: text(60),
-            daysBefore: z.number().int().min(0).max(730),
-          })
-          .strict(),
-      )
-      .max(5),
+    tasks: z.array(suggestedTaskSchema).max(5),
   })
   .strict()
   .refine(
@@ -190,34 +188,36 @@ export const eventSchema = z
 export type EventPlan = z.infer<typeof eventSchema>;
 export type Task = EventPlan["tasks"][number];
 export const backupSchema = z
-  .object({ version: z.literal(1), events: z.array(eventSchema).max(30) })
+  .object({
+    version: z.literal(1),
+    events: z.array(eventSchema).max(MAX_EVENTS),
+  })
   .strict();
 
 export const aiDraftSchema = z
   .object({
-    tasks: z
-      .array(
-        z
-          .object({
-            title: text(160),
-            category: text(60),
-            daysBefore: z.number().int().min(0).max(730),
-          })
-          .strict(),
-      )
-      .min(5)
-      .max(20),
+    tasks: z.array(suggestedTaskSchema).min(5).max(20),
     ideas: z.array(ideaSchema).min(3).max(6),
     assumptions: z
       .array(
-        text(300).refine(
-          (value) => value.startsWith("Verify "),
+        text(300).regex(
+          /^Verify /,
           "AI assumptions must be explicit verification checks",
         ),
       )
       .min(1)
       .max(6),
-    runOfShow: z.array(runItemSchema).min(3).max(12),
+    runOfShow: z
+      .array(runItemSchema)
+      .min(3)
+      .max(12)
+      .refine(
+        (items) =>
+          items.every(
+            (item, index) => index === 0 || item.time >= items[index - 1].time,
+          ),
+        "Event-day schedule must be chronological",
+      ),
   })
   .strict();
 export type AiDraft = z.infer<typeof aiDraftSchema>;

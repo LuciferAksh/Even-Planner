@@ -1,7 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPlan } from "../../domain/planner";
-import { eventSchema, type Brief, type EventPlan } from "../../domain/schema";
+import {
+  eventSchema,
+  MAX_EVENTS,
+  type Brief,
+  type EventPlan,
+} from "../../domain/schema";
 import { localToday, shiftDate } from "../../domain/dates";
 import {
   deleteEvent,
@@ -67,7 +72,7 @@ export function useEventWorkspace() {
     setError("");
   }
   async function create(brief: Brief) {
-    if (events.length >= 30)
+    if (events.length >= MAX_EVENTS)
       throw new Error(
         "You can keep up to 30 events. Export and remove one before continuing.",
       );

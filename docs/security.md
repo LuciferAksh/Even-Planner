@@ -4,6 +4,8 @@
 
 Event descriptions, imported backups, browser requests, provider responses and vendor fields are untrusted data. React renders text; there is no raw-HTML or executable markdown rendering. Imported objects receive strict schema validation, bounded arrays/strings and unique identifiers. Dependency graphs are checked for cycles and invalid ordering with memoized traversal. Imports are capped at 32 MB and 30 events and create separate copies transactionally. The larger bounded backup limit accommodates saved conversations.
 
+Both event creation and backup import enforce capacity in the same IndexedDB transaction as insertion, so concurrent tabs cannot exceed the loader's event bound. Gemini JSON output contracts are generated from the schemas that validate responses; cross-field semantic checks still run independently before applying a draft.
+
 Secrets are server-side runtime values. The Gemini credential is sent to Google's fixed HTTPS endpoint using the `x-goog-api-key` header, never in the URL. User input cannot choose the endpoint or model. The configurable server model is restricted to an allowlisted model-name pattern. The browser never accepts or stores API keys.
 
 ## Abuse controls

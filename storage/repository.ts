@@ -1,4 +1,9 @@
-import { backupSchema, eventSchema, type EventPlan } from "../domain/schema";
+import {
+  backupSchema,
+  eventSchema,
+  MAX_EVENTS,
+  type EventPlan,
+} from "../domain/schema";
 
 const DATABASE = "gather-planner";
 export const MAX_BACKUP_BYTES = 32 * 1024 * 1024;
@@ -52,6 +57,14 @@ export class SaveConflictError extends Error {
     this.name = "SaveConflictError";
   }
 }
+export class EventCapacityError extends Error {
+  constructor() {
+    super(
+      `Keep up to ${MAX_EVENTS} events. Remove an event before creating or importing another.`,
+    );
+    this.name = "EventCapacityError";
+  }
+}
 
 /** Compare against the revision actually read by the caller, inside one transaction. */
 export async function saveEvent(
@@ -64,7 +77,7 @@ export async function saveEvent(
     const tx = db.transaction("events", "readwrite");
     const store = tx.objectStore("events");
     const read = store.get(valid.id);
-    let conflict = false;
+    let failure: Error | undefined;
     read.onsuccess = () => {
       const existing = read.result as EventPlan | undefined;
       // An exact retry is safe even if the previous acknowledgement was lost.
@@ -75,11 +88,24 @@ export async function saveEvent(
         actualRevision !== expectedRevision ||
         (expectedRevision !== null && valid.revision !== expectedRevision + 1)
       ) {
-        conflict = true;
+        failure = new SaveConflictError();
         tx.abort();
         return;
       }
-      store.put(valid);
+      if (existing) {
+        store.put(valid);
+        return;
+      }
+      // The count and insert share the write transaction, including across tabs.
+      const count = store.count();
+      count.onsuccess = () => {
+        if (count.result >= MAX_EVENTS) {
+          failure = new EventCapacityError();
+          tx.abort();
+          return;
+        }
+        store.put(valid);
+      };
     };
     tx.oncomplete = () => {
       db.close();
@@ -88,9 +114,7 @@ export async function saveEvent(
     tx.onabort = tx.onerror = () => {
       db.close();
       reject(
-        conflict
-          ? new SaveConflictError()
-          : new Error("Storage failed. Export a backup before leaving."),
+        failure ?? new Error("Storage failed. Export a backup before leaving."),
       );
     };
   });
@@ -102,38 +126,41 @@ export async function importEvents(raw: string): Promise<EventPlan[]> {
   if (raw.length > MAX_BACKUP_BYTES)
     throw new Error("Backup is too large (maximum 32 MB).");
   const incoming = backupSchema.parse(JSON.parse(raw)).events;
-  const current = await loadEvents();
-  const merged = new Map(current.map((event) => [event.id, event]));
-  const additions: EventPlan[] = [];
   // Imported copies get new IDs: never silently overwrite an existing event.
-  for (const event of incoming) {
-    const copy = {
-      ...event,
-      id: crypto.randomUUID(),
-      revision: 0,
-      updatedAt: new Date().toISOString(),
-    };
-    merged.set(copy.id, copy);
-    additions.push(copy);
-  }
-  if (merged.size > 30)
-    throw new Error(
-      "Keep up to 30 events. Remove an event before importing this backup.",
-    );
+  const additions = incoming.map((event) => ({
+    ...event,
+    id: crypto.randomUUID(),
+    revision: 0,
+    updatedAt: new Date().toISOString(),
+  }));
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction("events", "readwrite");
-    // Write imported copies only; never overwrite a newer edit in another tab.
-    for (const event of additions) tx.objectStore("events").put(event);
+    const store = tx.objectStore("events");
+    let capacityExceeded = false;
+    const count = store.count();
+    count.onsuccess = () => {
+      if (count.result + additions.length > MAX_EVENTS) {
+        capacityExceeded = true;
+        tx.abort();
+        return;
+      }
+      for (const event of additions) store.put(event);
+    };
     tx.oncomplete = () => {
       db.close();
-      resolve([...merged.values()]);
+      resolve();
     };
     tx.onerror = tx.onabort = () => {
       db.close();
       reject(
-        new Error("Could not import backup. Existing events were preserved."),
+        capacityExceeded
+          ? new EventCapacityError()
+          : new Error(
+              "Could not import backup. Existing events were preserved.",
+            ),
       );
     };
   });
+  return loadEvents();
 }
